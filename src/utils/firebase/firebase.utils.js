@@ -1,5 +1,11 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithPopup, signInWithRedirect, GoogleAuthProvider } from "firebase/auth";
+import {
+	getAuth,
+	signInWithPopup,
+	signInWithRedirect,
+	GoogleAuthProvider,
+	createUserWithEmailAndPassword,
+} from "firebase/auth";
 import { getFirestore, collection, doc, addDoc, setDoc, getDoc } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -17,37 +23,38 @@ const firebaseApp = initializeApp(firebaseConfig);
 
 /* https://firebase.google.com/docs/auth/web/google-signin |  */
 // Create an instance of the Google provider object:
-const provider = new GoogleAuthProvider();
+// 	*note*
+//  	you can have different provider instance, e.g. facebook auth provider
+const googleProvider = new GoogleAuthProvider();
 // Optional: Specify additional custom OAuth provider parameters that you want to send with the OAuth request.
-provider.setCustomParameters({ prompt: "select_account" });
+googleProvider.setCustomParameters({ prompt: "select_account" });
 
 // export auth instance, getAuth(firebaseApp) by default - https://stackoverflow.com/questions/72574943/are-you-supposed-to-pass-the-firebase-app-to-getauth-or-leave-the-arguments-as
 export const auth = getAuth();
-// export google signInWithPopup api, return a promise
-export const signInWithGooglePopup = () => signInWithPopup(auth, provider);
+
+// export google signInWithPopup & signInWithRedirect api, return a promise
+export const signInWithGooglePopup = () => signInWithPopup(auth, googleProvider);
+export const signInWithGoogleRedirect = () => signInWithRedirect(auth, googleProvider);
 
 /* https://firebase.google.com/docs/firestore/manage-data/add-data#initialize */
 // Initialize an instance of Cloud Firestore:
 export const db = getFirestore();
 
-export const createUserDocFromAuth = async (userAuth) => {
-	// doc(firestore, path/collection name, pathSegments): DocumentReference - https://firebase.google.com/docs/reference/js/firestore_.md#doc
+export const createUserDocFromAuth = async (userAuth, additionalInfo = null) => {
+	// doc(firestore, path/collection name, pathSegments/document name): DocumentReference - https://firebase.google.com/docs/reference/js/firestore_.md#doc
 	// 		Here pathSegments refer to userAuth.id, as an unique id to get the document,
 	//			so path to that particular document will be "users/{uid}"
-	// *note*
-	// 	A DocumentRefernce obj always present when using doc(), even it is not yet created in firebase database
+	// 	*note*
+	// 		A DocumentRefernce obj always present when using doc(), even it is not yet created in firebase database
 	const userDocRef = doc(db, "users", userAuth.uid);
 
 	// getDoc(DocumentReference): Promise<DocumentSnapshot>
-	// *note*
-	//	A DocumentSnapshot contains data read from a document specified by the DocumentReference.
-	//		can use exists() method to check whether the data/document actually exists
+	// 	*note*
+	//		A DocumentSnapshot contains data read from a document specified by the DocumentReference.
+	//			can use exists() method to check whether the data/document actually exists
 	const userSnapshot = await getDoc(userDocRef);
-	console.log(
-		'user "' + userAuth.displayName + '" record exist in database? ==> ' + userSnapshot.exists()
-	);
 
-	//#region : pseudo code -- sign in user logic
+	//#region : pseudo code -- sign in user & return user document Logic
 	/* 
 		if (user data exist) {
 			return userDocRef
@@ -58,14 +65,18 @@ export const createUserDocFromAuth = async (userAuth) => {
 	 */
 	//#endregion
 
+	// 	if no data exist in the DocRef, create data into it
 	if (!userSnapshot.exists()) {
 		try {
 			// setDoc(DocumentReference, data): Promise<void>;
-			// 	if no data exist in the DocRef, creat data into it
+			//	*note*
+			// 		email&password auth method's displayName field is null,
+			// 			{...additionalInfo} = displayName: xxx,  to add form data into it
 			await setDoc(userDocRef, {
-				user: userAuth.displayName,
+				displayName: userAuth.displayName,
 				email: userAuth.email,
 				createdAt: new Date(),
+				...additionalInfo,
 			});
 		} catch (error) {
 			alert("error creating the user:", error.message);
@@ -73,7 +84,13 @@ export const createUserDocFromAuth = async (userAuth) => {
 	}
 
 	// always return the DocumentReference to client for CRUD operation
-	// *note*
-	// return type is a Promise<userDocRef> because of async function
+	// 	*note*
+	// 		return type is a Promise<userDocRef> because of async function
 	return userDocRef;
+};
+
+export const createAuthUserWithEmailAndPassword = async (email, password) => {
+	// if either email or password missing, return immediately
+	if (!email || !password) return;
+	return await createUserWithEmailAndPassword(auth, email, password);
 };
