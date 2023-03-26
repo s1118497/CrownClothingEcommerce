@@ -5,6 +5,7 @@ import {
 	signInWithRedirect,
 	GoogleAuthProvider,
 	createUserWithEmailAndPassword,
+	signInWithEmailAndPassword,
 } from "firebase/auth";
 import { getFirestore, collection, doc, addDoc, setDoc, getDoc } from "firebase/firestore";
 
@@ -30,6 +31,8 @@ const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: "select_account" });
 
 // export auth instance, getAuth(firebaseApp) by default - https://stackoverflow.com/questions/72574943/are-you-supposed-to-pass-the-firebase-app-to-getauth-or-leave-the-arguments-as
+// 	*IMPORTANT*
+// 		act as the unique auth store throughout the entire app
 export const auth = getAuth();
 
 // export google signInWithPopup & signInWithRedirect api, return a promise
@@ -93,4 +96,11 @@ export const createAuthUserWithEmailAndPassword = async (email, password) => {
 	// if either email or password missing, return immediately
 	if (!email || !password) return;
 	return await createUserWithEmailAndPassword(auth, email, password);
+};
+
+export const signInAuthUserWithEmailAndPassword = async (email, password) => {
+	// if either email or password missing, return immediately
+	if (!email || !password) return;
+	const userCredential = await signInWithEmailAndPassword(auth, email, password);
+	return userCredential.user;
 };
