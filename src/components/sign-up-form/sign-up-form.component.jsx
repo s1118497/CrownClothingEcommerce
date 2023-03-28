@@ -29,16 +29,15 @@ const SignUpForm = () => {
 		if (confirmPassword !== password) return alert("confirm password do not match!");
 
 		try {
-			const userCredential = await createAuthUserWithEmailAndPassword(email, password);
-			// 	email & password auth doesn't provide display name like Google auth does.
-			// 		createUserDocFromAuth (Object<userAuth>, Object<additionalInfo>) : Promise <userDocRef>
-			const userDocRef = await createUserDocFromAuth(userCredential.user, { displayName });
-			console.log(userDocRef);
-
-			setFormFields(defaultFormFields);
+			// user auto sign in after successfully sign up
+			const { user } = await createAuthUserWithEmailAndPassword(email, password);
+			await createUserDocFromAuth(user, { displayName });
 		} catch (err) {
 			if (err.code === "auth/email-already-in-use")
-				alert("Fail to create user: Already signed in");
+				return alert("Fail to create user: Already signed in");
+			return alert(err.code);
+		} finally {
+			setFormFields(defaultFormFields);
 		}
 	};
 

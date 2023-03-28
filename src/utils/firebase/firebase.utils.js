@@ -6,6 +6,8 @@ import {
 	GoogleAuthProvider,
 	createUserWithEmailAndPassword,
 	signInWithEmailAndPassword,
+	signOut,
+	onAuthStateChanged,
 } from "firebase/auth";
 import { getFirestore, collection, doc, addDoc, setDoc, getDoc } from "firebase/firestore";
 
@@ -32,7 +34,8 @@ googleProvider.setCustomParameters({ prompt: "select_account" });
 
 // export auth instance, getAuth(firebaseApp) by default - https://stackoverflow.com/questions/72574943/are-you-supposed-to-pass-the-firebase-app-to-getauth-or-leave-the-arguments-as
 // 	*IMPORTANT*
-// 		act as the unique auth store throughout the entire app
+//		(Singleton)An auth instance act as unique store throughout the entire app
+//						-keep track of whether user sign-in/out with different sign in provider
 export const auth = getAuth();
 
 // export google signInWithPopup & signInWithRedirect api, return a promise
@@ -82,7 +85,7 @@ export const createUserDocFromAuth = async (userAuth, additionalInfo = null) => 
 				...additionalInfo,
 			});
 		} catch (error) {
-			alert("error creating the user:", error.message);
+			alert("error creating user:", error.message);
 		}
 	}
 
@@ -104,3 +107,14 @@ export const signInAuthUserWithEmailAndPassword = async (email, password) => {
 	const userCredential = await signInWithEmailAndPassword(auth, email, password);
 	return userCredential.user;
 };
+
+export const signOutUser = async () => {
+	try {
+		await signOut(auth);
+	} catch (error) {
+		alert("Sign Out Error: " + error.code);
+	}
+};
+
+// *  an helper function as an observer for changes to user's sign-in state in auth object *
+export const onAuthStateChangedListener = (callback) => onAuthStateChanged(auth, callback);

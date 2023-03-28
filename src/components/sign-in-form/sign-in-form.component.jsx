@@ -1,7 +1,6 @@
 import { useState } from "react";
 import {
 	signInAuthUserWithEmailAndPassword,
-	createUserDocFromAuth,
 	signInWithGooglePopup,
 } from "../../utils/firebase/firebase.utils.js";
 import Button from "../button/button.component";
@@ -15,16 +14,12 @@ const defaultFormFields = {
 
 const SignInForm = () => {
 	const [formFields, setFormFields] = useState(defaultFormFields);
-
 	const { email, password } = formFields;
 
 	const handleSubmit = async (e) => {
-		console.log("submit fired");
 		e.preventDefault();
 		try {
-			const loggedUser = await signInAuthUserWithEmailAndPassword(email, password);
-			const userDoc = await createUserDocFromAuth(loggedUser);
-			console.log(userDoc);
+			await signInAuthUserWithEmailAndPassword(email, password);
 		} catch (error) {
 			switch (error.code) {
 				case "auth/invalid-email":
@@ -45,8 +40,7 @@ const SignInForm = () => {
 		// const userCredential = GoogleAuthProvider.credentialFromResult(response);
 		// console.log(userCredential.accessToken);
 		try {
-			const response = await signInWithGooglePopup();
-			await createUserDocFromAuth(response.user);
+			await signInWithGooglePopup();
 		} catch (error) {
 			if (error.code === "auth/popup-closed-by-user") return alert("Please log in account");
 			return alert(error.code);
