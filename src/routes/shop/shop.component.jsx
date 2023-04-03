@@ -6,8 +6,8 @@ const Shop = () => {
 	const products = useProductsContext();
 	return (
 		<div className="products-container">
-			{products.map(({ id, ...product }) => (
-				<ProductCard key={id} {...product} />
+			{products.map((product) => (
+				<ProductCard key={product.id} {...product} />
 			))}
 		</div>
 	);

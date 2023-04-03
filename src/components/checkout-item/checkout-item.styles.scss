@@ -1,0 +1,15 @@
+.checkout-item {
+	display: flex;
+	justify-content: space-between;
+}
+
+div span:last-of-type {
+	cursor: pointer;
+	font-size: larger;
+}
+
+.item-quantity span {
+	cursor: pointer;
+	font-size: larger;
+	font-weight: bolder;
+}
