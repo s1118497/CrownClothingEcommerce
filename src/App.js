@@ -12,7 +12,7 @@ const App = () => {
 			<Route path="/" element={<Navigation />}>
 				{/* <Home> will render when root route, at <Navigation>'s <Outlet> */}
 				<Route index element={<Home />} />
-				<Route path="shop" element={<Shop />} />
+				<Route path="shop/*" element={<Shop />} />
 				<Route path="auth" element={<Authentication />} />
 				<Route path="checkout" element={<Checkout />} />
 			</Route>
