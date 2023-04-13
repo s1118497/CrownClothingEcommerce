@@ -1,35 +1,21 @@
-import { Routes, Route, useParams } from "react-router-dom";
-import { useCategoriesContext } from "../../contexts/categories.context";
-import CategoryPreview from "../../components/category-preview/category-preview.component";
-import CategoryDetail from "./category-detail/category-detail.component";
+import { Routes, Route } from "react-router-dom";
+import CategoriesPreview from "../categories-preview/categories-preview.component";
+import Category from "../category/category.component";
 import "./shop.styles.scss";
 
 const Shop = () => {
-	const { categoriesMap } = useCategoriesContext();
-	const param = useParams();
-	if (param["*"])
-		return (
-			<Routes>
-				<Route
-					path=":category"
-					element={<CategoryDetail products={categoriesMap[param["*"]]} />}
-				/>
-			</Routes>
-		);
-
 	return (
-		<div className="shop-container">
-			{Object.keys(categoriesMap).map((categoryTitle) => {
-				const products = categoriesMap[categoryTitle];
-				return (
-					<CategoryPreview
-						key={categoryTitle}
-						categoryTitle={categoryTitle}
-						products={products}
-					/>
-				);
-			})}
-		</div>
+		<Routes>
+			{/* 
+				match url = " /shop "
+					same effect: <Route path="/" element={<CategoriesPreview />} />
+			 */}
+			<Route index element={<CategoriesPreview />} />
+			{/* match url = " /shop/xxx", 
+					xxx = variable pass to url from navigation, e.g. to="xxx" | navigate("xxx")
+			 */}
+			<Route path="/:category" element={<Category />} />
+		</Routes>
 	);
 };
 

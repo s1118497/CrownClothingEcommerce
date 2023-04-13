@@ -9,7 +9,17 @@ import {
 	signOut,
 	onAuthStateChanged,
 } from "firebase/auth";
-import { getFirestore, collection, doc, addDoc, setDoc, getDoc } from "firebase/firestore";
+import {
+	getFirestore,
+	collection,
+	writeBatch,
+	doc,
+	addDoc,
+	setDoc,
+	getDoc,
+	query,
+	getDocs,
+} from "firebase/firestore";
 
 const firebaseConfig = {
 	apiKey: "AIzaSyBkBXURuNh-tHgvjSp6KHBjK8yIsS0ZEzc",
@@ -46,8 +56,63 @@ export const signInWithGoogleRedirect = () => signInWithRedirect(auth, googlePro
 // Initialize an instance of Cloud Firestore:
 export const db = getFirestore();
 
+export const addCollectionAndDocument = async (collectionKey, objectsToAdd) => {
+	// collection(firestore, path/collection name, [pathSegments]): CollectionReference
+	// 	*note*
+	// 		a CollectionReference obj always present when using collection(), even it is not yet created in firebase database
+	const collectionRef = collection(db, collectionKey);
+
+	//  a write batch, means multiple writes as a single atomic operation (must be performed entirely or not performed at all)
+	//  	https://firebase.google.com/docs/firestore/manage-data/transactions#batched-writes
+	// get a new write batch instance, any combination of writes operation, set(), update(), or delete()
+	const batch = writeBatch(db);
+
+	// objectsToAdd argument = SHOP_DATA from "shop-data.js"
+	objectsToAdd.forEach((object) => {
+		// for each SHOP_DATA element, get an document reference named as its title prop
+		// 		doc(db, collection, document) | doc(collection, document)
+		const docRef = doc(collectionRef, object.title.toLowerCase());
+		// write the data to the document
+		batch.set(docRef, object);
+	});
+
+	// commits all of the writes in this write batch as a single transaction
+	// 	here means all the batch.set(docRef, object)
+	await batch.commit();
+
+	console.log("done - write batch");
+};
+
+// https://firebase.google.com/docs/firestore/query-data/get-data#get_multiple_documents_from_a_collection
+export const getCategoriesAndDocuments = async () => {
+	//  create a reference to the "categories" collection -  https://firebase.google.com/docs/firestore/query-data/queries#simple_queries
+	const collectionRef = collection(db, "categories");
+	// create a query against the collection.
+	const q = query(collectionRef);
+	// executes the query and returns the results as a QuerySnapshot:  https://firebase.google.com/docs/reference/js/firestore_.md#getdocs
+	// 		getDocs<T>(query: Query<T>): Promise<QuerySnapshot<T>>
+	const querySnapshot = await getDocs(q);
+
+	// console.log(querySnapshot.docs[0].data()); //test
+	// *note*
+	// 		querySnapshot.docs = an array of each the document against the collection QuerySnapshot.
+	// 				each docSnapshot need data() to decrypt the document data
+
+	// format the each document data [ {title: "hat", items: [xxx, xxx, xxx]} , {title: "jackets", items: [xxx, xxx, xxx]} ]
+	// 		into one categoryMap { hat: [xxx, xxx, xxx], jackets: [xxx, xxx, xxx] }
+	// 	*note*
+	// 		 reason: Objects (Hash Table data structure) better for searching O[1] for items than Array O[N].
+	const categoryMap = querySnapshot.docs.reduce((acc, docSnapshot) => {
+		const { title, items } = docSnapshot.data?.();
+		acc[title.toLowerCase()] = items;
+		return acc;
+	}, {});
+
+	return categoryMap;
+};
+
 export const createUserDocFromAuth = async (userAuth, additionalInfo = null) => {
-	// doc(firestore, path/collection name, pathSegments/document name): DocumentReference - https://firebase.google.com/docs/reference/js/firestore_.md#doc
+	// doc(firestore, path/collection name, pathSegments/document name) || doc(collectionRef, pathSegments/document name): DocumentReference
 	// 		Here pathSegments refer to userAuth.id, as an unique id to get the document,
 	//			so path to that particular document will be "users/{uid}"
 	// 	*note*
