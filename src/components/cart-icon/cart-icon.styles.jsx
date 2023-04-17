@@ -1,5 +1,7 @@
 import styled from "styled-components";
 
+import { ReactComponent as ShoppingSvg } from "../../assets/shopping-bag.svg";
+
 const CartIconContainer = styled.div`
 	width: 45px;
 	height: 45px;
@@ -8,11 +10,12 @@ const CartIconContainer = styled.div`
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
+`;
 
-	.shopping-icon {
-		width: 24px;
-		height: 24px;
-	}
+// directly target svg component into styled-component, instead of adding class to svg || writing rules inside <CartIconContainer>
+const ShoppingIcon = styled(ShoppingSvg)`
+	width: 24px;
+	height: 24px;
 `;
 
 const ItemCount = styled.span`
@@ -22,4 +25,4 @@ const ItemCount = styled.span`
 	bottom: 12px;
 `;
 
-export { CartIconContainer, ItemCount };
+export { CartIconContainer, ItemCount, ShoppingIcon };
