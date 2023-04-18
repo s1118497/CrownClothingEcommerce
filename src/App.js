@@ -12,10 +12,7 @@ const App = () => {
 			<Route path="/" element={<Navigation />}>
 				{/* <Home> will render when root route, at <Navigation>'s <Outlet> */}
 				<Route index element={<Home />} />
-				{/*  
-					If a route path pattern ends with "/*" 
-						then it will match any characters following the "/" 
-				*/}
+				{/*  	match any route that prefix "/shop/"	*/}
 				<Route path="shop/*" element={<Shop />} />
 				<Route path="auth" element={<Authentication />} />
 				<Route path="checkout" element={<Checkout />} />

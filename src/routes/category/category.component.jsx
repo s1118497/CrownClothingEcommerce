@@ -7,7 +7,7 @@ import { CategoryContainer, CategoryTitle } from "./category.styles.jsx";
 // custom hook to synchronize products array against category param
 const useCategoryProducts = () => {
 	const { categoriesMap } = useCategoriesContext();
-	console.log("categoriesMap", categoriesMap); // for testing: when refresh, {} => {categoriesMap} => {categoriesMap} (run render function 1 more time before bail out)
+	// console.log("categoriesMap", categoriesMap); // for testing: when refresh, {} => {categoriesMap} => {categoriesMap} (run render function 1 more time before bail out)
 	// path = " /shop/:category "
 	const { category } = useParams();
 	const [products, setProducts] = useState(categoriesMap[category]);
