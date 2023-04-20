@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useReducer } from "react";
 
 // a helper function for setCartItems (ADD / INCREMENT checkout)
 const addCartItem = (cartItems, productToAdd) => {
@@ -45,52 +45,88 @@ const removeCartItem = (cartItems, cartItemToRemove) => {
 const clearCartItem = (cartItems, cartItemToClear) =>
 	cartItems.filter((currentCartItem) => currentCartItem.id !== cartItemToClear.id);
 
-// a custom hook encapsulate cartCount logic
-const useCartCount = (cartItems) => {
-	const [cartCount, setCartCount] = useState(0);
-	useEffect(() => {
-		const newCartCount = cartItems.reduce((total, currItem) => total + currItem.quantity, 0);
-		setCartCount(newCartCount);
-	}, [cartItems]);
-	return cartCount;
-};
-
-// a custom hook encapsulate cartTotal logic
-const useCheckoutTotal = (cartItems) => {
-	const [cartTotal, setCartTotal] = useState(0);
-	useEffect(() => {
-		setCartTotal(cartItems.reduce((total, { quantity, price }) => quantity * price + total, 0));
-	}, [cartItems]);
-
-	return cartTotal;
-};
-
-const CartContext = createContext({
+const INIT_STATE = {
 	isCartOpen: false,
-	setIsCartOpen: () => {},
 	cartItems: [],
-	addItemToCart: () => {},
 	cartCount: 0,
-	removeItemFromCart: () => {},
-	clearItemFromCart: () => {},
 	cartTotal: 0,
-});
+};
+
+const CartContext = createContext(INIT_STATE);
+
+const CART_ACTION_TYPES = {
+	ADD_ITEM_TO_CART: "ADD_ITEM_TO_CART",
+	TOGGLE_CART_OPEN: "TOGGLE_CART_OPEN",
+	REMOVE_ITEM_FROM_CART: "REMOVE_ITEM_FROM_CART",
+	CLEAR_CART_ITEMS: "CLEAR_CART_ITEMS",
+};
+
+const cartReducer = (state, action) => {
+	const { type, payload } = action;
+	switch (type) {
+		case CART_ACTION_TYPES.ADD_ITEM_TO_CART:
+			return {
+				...state,
+				cartItems: payload,
+				cartCount: state.cartCount + 1,
+				cartTotal: payload.reduce(
+					(total, { quantity, price }) => quantity * price + total,
+					0
+				),
+			};
+		case CART_ACTION_TYPES.REMOVE_ITEM_FROM_CART:
+			return {
+				...state,
+				cartItems: payload,
+				cartCount: state.cartCount - 1,
+				cartTotal: payload.reduce(
+					(total, { quantity, price }) => quantity * price + total,
+					0
+				),
+			};
+		case CART_ACTION_TYPES.CLEAR_CART_ITEMS:
+			return {
+				...state,
+				cartItems: payload,
+				cartTotal: payload.reduce(
+					(total, { quantity, price }) => quantity * price + total,
+					0
+				),
+				cartCount: payload.reduce((total, { quantity }) => total + quantity, 0),
+			};
+		case CART_ACTION_TYPES.TOGGLE_CART_OPEN:
+			return { ...state, isCartOpen: payload };
+		default:
+			throw new Error("Unhandled type " + type + " in userReducer");
+	}
+};
 
 // Export cart context provider component
 export const CartProvider = ({ children }) => {
-	const [isCartOpen, setIsCartOpen] = useState(false);
-	const [cartItems, setCartItems] = useState([]);
+	const [{ cartItems, cartCount, cartTotal, isCartOpen }, dispatch] = useReducer(
+		cartReducer,
+		INIT_STATE
+	);
 
-	const cartTotal = useCheckoutTotal(cartItems);
-	const cartCount = useCartCount(cartItems);
-
-	const addItemToCart = (productToAdd) => setCartItems(addCartItem(cartItems, productToAdd));
-
+	// const cartTotal = useCheckoutTotal(cartItems);
+	// const cartCount = useCartCount(cartItems);
+	const setIsCartOpen = (cartOpen) =>
+		dispatch({ type: CART_ACTION_TYPES.TOGGLE_CART_OPEN, payload: cartOpen });
+	const addItemToCart = (productToAdd) =>
+		dispatch({
+			type: CART_ACTION_TYPES.ADD_ITEM_TO_CART,
+			payload: addCartItem(cartItems, productToAdd),
+		});
 	const removeItemFromCart = (cartItemToRemove) =>
-		setCartItems(removeCartItem(cartItems, cartItemToRemove));
-
+		dispatch({
+			type: CART_ACTION_TYPES.REMOVE_ITEM_FROM_CART,
+			payload: removeCartItem(cartItems, cartItemToRemove),
+		});
 	const clearItemFromCart = (cartItemsToClear) =>
-		setCartItems(clearCartItem(cartItems, cartItemsToClear));
+		dispatch({
+			type: CART_ACTION_TYPES.CLEAR_CART_ITEMS,
+			payload: clearCartItem(cartItems, cartItemsToClear),
+		});
 
 	const value = {
 		isCartOpen,
