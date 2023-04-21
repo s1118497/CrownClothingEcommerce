@@ -3,6 +3,7 @@ import {
 	createUserDocFromAuth,
 	onAuthStateChangedListener,
 } from "../utils/firebase/firebase.utils";
+import { createAction } from "../utils/reducers/reducer.utils";
 
 // creates a context container dedicated to current user info
 const UserContext = createContext({
@@ -30,7 +31,7 @@ export const UserProvider = ({ children }) => {
 
 	// a helper function that dispatch an action object to reducer function
 	const setCurrentUser = (user) =>
-		dispatch({ type: USER_ACTION_TYPES.SET_CURRENT_USER, payload: user });
+		dispatch(createAction(USER_ACTION_TYPES.SET_CURRENT_USER, user));
 
 	// attach an auth observer when initial mount,
 	// 		 whenever sign-in/out, provoke the callback (updating "currentUser" state value)

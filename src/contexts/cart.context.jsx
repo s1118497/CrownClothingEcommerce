@@ -1,4 +1,5 @@
 import { createContext, useContext, useReducer } from "react";
+import { createAction } from "../utils/reducers/reducer.utils";
 
 // a helper function for setCartItems (ADD / INCREMENT checkout)
 const addCartItem = (cartItems, productToAdd) => {
@@ -104,10 +105,13 @@ export const CartProvider = ({ children }) => {
 		);
 		const newCartCount = newCartItems.reduce((total, { quantity }) => total + quantity, 0);
 		// advantage: updating 1 state prop (cartItems), automatically update the another 2 at one place ==> readibility + maintainable
-		dispatch({
-			type: CART_ACTION_TYPES.SET_CART_ITEMS,
-			payload: { cartItems: newCartItems, cartTotal: newCartTotal, cartCount: newCartCount },
-		});
+		dispatch(
+			createAction(CART_ACTION_TYPES.SET_CART_ITEMS, {
+				cartItems: newCartItems,
+				cartTotal: newCartTotal,
+				cartCount: newCartCount,
+			})
+		);
 	};
 	// calculate new [cartItems], used by cart context consumer
 	const addItemToCart = (productToAdd) => {
@@ -122,7 +126,7 @@ export const CartProvider = ({ children }) => {
 		const newCartItems = clearCartItem(cartItems, cartItemsToClear);
 		updateCartItemsReducer(newCartItems);
 	};
-	const setIsCartOpen = () => dispatch({ type: CART_ACTION_TYPES.TOGGLE_CART_OPEN });
+	const setIsCartOpen = () => dispatch(createAction(CART_ACTION_TYPES.TOGGLE_CART_OPEN));
 
 	const value = {
 		isCartOpen,
