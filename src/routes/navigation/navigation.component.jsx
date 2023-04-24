@@ -12,7 +12,8 @@ import CartDropdown from "../../components/cart-dropdown/cart-dropdown.component
 import { NavigationContainer, LogoContainer, NavLinks, NavLink } from "./navigation.styles";
 
 const Navigation = () => {
-	// rerender whenever redux state changes
+	//  useSelector automatically subscribes to the Redux store for us!
+	// 		rerender whenever redux state changes
 	const currentUser = useSelector(selectCurrentUser);
 
 	const { isCartOpen } = useCartContext();

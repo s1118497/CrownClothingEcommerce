@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useCategoriesContext } from "../../contexts/categories.context";
+import { useSelector } from "react-redux";
+import { selectCatogoriesMap } from "../../store/categories/category.selector";
 import ProductCard from "../../components/product-card/product-card.component";
 import { CategoryContainer, CategoryTitle } from "./category.styles.jsx";
 
 // custom hook to synchronize products array against category param
 const useCategoryProducts = () => {
-	const { categoriesMap } = useCategoriesContext();
-	// console.log("categoriesMap", categoriesMap); // for testing: when refresh, {} => {categoriesMap} => {categoriesMap} (run render function 1 more time before bail out)
+	const categoriesMap = useSelector(selectCatogoriesMap);
+
 	// path = " /shop/:category "
 	const { category } = useParams();
+
 	const [products, setProducts] = useState(categoriesMap[category]);
 
-	//	only update products when category change or categoriesMap change
+	//	only update products when category or categoriesMap change
 	useEffect(() => {
 		setProducts(categoriesMap[category]);
 	}, [category, categoriesMap]);
