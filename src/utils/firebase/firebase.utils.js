@@ -91,24 +91,27 @@ export const getCategoriesAndDocuments = async () => {
 	const q = query(collectionRef);
 	// executes the query and returns the results as a QuerySnapshot:  https://firebase.google.com/docs/reference/js/firestore_.md#getdocs
 	// 		getDocs<T>(query: Query<T>): Promise<QuerySnapshot<T>>
-	const querySnapshot = await getDocs(q);
-
-	// console.log(querySnapshot.docs[0].data()); //test
 	// *note*
 	// 		querySnapshot.docs = an array of each the document against the collection QuerySnapshot.
 	// 				each docSnapshot need data() to decrypt the document data
+	const querySnapshot = await getDocs(q);
+	const categoriesArray = querySnapshot.docs.map((docSnapshot) => docSnapshot.data());
 
+	// 159: Business Logic in our Selectors
+	// 		return the base form of firestore document
+	return categoriesArray;
+
+	// *notes*
 	// format the each document data [ {title: "hat", items: [xxx, xxx, xxx]} , {title: "jackets", items: [xxx, xxx, xxx]} ]
 	// 		into one categoryMap { hat: [xxx, xxx, xxx], jackets: [xxx, xxx, xxx] }
-	// 	*note*
 	// 		 reason: Objects (Hash Table data structure) better for searching O[1] for items than Array O[N].
-	const categoryMap = querySnapshot.docs.reduce((acc, docSnapshot) => {
+	/* // (deprecated) at 159: Business Logic in our Selectors
+		const categoryMap = querySnapshot.docs.reduce((acc, docSnapshot) => {
 		const { title, items } = docSnapshot.data?.();
 		acc[title.toLowerCase()] = items;
 		return acc;
-	}, {});
-
-	return categoryMap;
+		}, {}); 
+		return categoryMap; */
 };
 
 export const createUserDocFromAuth = async (userAuth, additionalInfo = null) => {

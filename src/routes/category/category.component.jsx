@@ -5,17 +5,14 @@ import { selectCatogoriesMap } from "../../store/categories/category.selector";
 import ProductCard from "../../components/product-card/product-card.component";
 import { CategoryContainer, CategoryTitle } from "./category.styles.jsx";
 
-// custom hook to synchronize products array against category param
 const useCategoryProducts = () => {
-	const categoriesMap = useSelector(selectCatogoriesMap);
-
 	// path = " /shop/:category "
 	const { category } = useParams();
-
+	const categoriesMap = useSelector(selectCatogoriesMap);
 	const [products, setProducts] = useState(categoriesMap[category]);
-
-	//	only update products when category or categoriesMap change
+	//	only update products when category param or categoriesMap data change
 	useEffect(() => {
+		console.log("effect fired calling setProducts");
 		setProducts(categoriesMap[category]);
 	}, [category, categoriesMap]);
 
@@ -23,8 +20,8 @@ const useCategoryProducts = () => {
 };
 
 export default function Category() {
+	console.log("render/re-render <Category>");
 	const { products, category } = useCategoryProducts();
-
 	return (
 		<>
 			<CategoryTitle>{category.toUpperCase()}</CategoryTitle>

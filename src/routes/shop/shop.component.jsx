@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 
 import { getCategoriesAndDocuments } from "../../utils/firebase/firebase.utils";
 
-import { setCategoriesMap } from "../../store/categories/category.action";
+import { setCategories } from "../../store/categories/category.action";
 
 import CategoriesPreview from "../categories-preview/categories-preview.component";
 import Category from "../category/category.component";
@@ -28,14 +28,16 @@ const Shop = () => {
 };
 
 // custom hook when <Shop> is first mount
+// 	*note*
+// 		at <CategoriesPreview> or <Category>, <Shop> component is stil mount, effect won't trigger
 const useCategoriesMap = () => {
 	const dispatch = useDispatch();
 	useEffect(() => {
-		const getCategoriesMap = async () => {
-			const categoriesMap = await getCategoriesAndDocuments();
-			dispatch(setCategoriesMap(categoriesMap));
+		const getCategories = async () => {
+			const categoriesArray = await getCategoriesAndDocuments();
+			dispatch(setCategories(categoriesArray));
 		};
-		getCategoriesMap();
+		getCategories();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 };
