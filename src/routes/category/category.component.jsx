@@ -12,7 +12,6 @@ const useCategoryProducts = () => {
 	const [products, setProducts] = useState(categoriesMap[category]);
 	//	only update products when category param or categoriesMap data change
 	useEffect(() => {
-		console.log("effect fired calling setProducts");
 		setProducts(categoriesMap[category]);
 	}, [category, categoriesMap]);
 
@@ -20,7 +19,6 @@ const useCategoryProducts = () => {
 };
 
 export default function Category() {
-	console.log("render/re-render <Category>");
 	const { products, category } = useCategoryProducts();
 	return (
 		<>

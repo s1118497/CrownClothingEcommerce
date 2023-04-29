@@ -1,10 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
-
 import { selectCurrentUser } from "../../store/user/user.selector";
-
 import { signOutUser } from "../../utils/firebase/firebase.utils";
-import { useCartContext } from "../../contexts/cart.context";
 import { ReactComponent as Logo } from "../../assets/crown.svg";
 import CartIcon from "../../components/cart-icon/cart-icon.component";
 import CartDropdown from "../../components/cart-dropdown/cart-dropdown.component";
@@ -16,7 +13,7 @@ const Navigation = () => {
 	// 		rerender whenever redux state changes
 	const currentUser = useSelector(selectCurrentUser);
 
-	const { isCartOpen } = useCartContext();
+	const { isCartOpen } = useSelector((state) => state.cart);
 
 	const handleSignOut = async (e) => await signOutUser();
 
