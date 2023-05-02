@@ -2,6 +2,7 @@ import { compose, createStore, applyMiddleware } from "redux";
 import logger from "redux-logger";
 // import myLogger from "./middleware/myLogger";
 import { persistReducer, persistStore } from "redux-persist";
+import thunk from "redux-thunk";
 import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 import rootReducer from "./root-reducer";
 
@@ -13,7 +14,7 @@ import rootReducer from "./root-reducer";
 const persistConfig = {
 	key: "root",
 	storage,
-	blacklist: ["user", "categories"], // user reducer will not be persist
+	whitelist: ["cart"], // only cart reducer will be persist
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -22,8 +23,8 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 // *note*
 // 		in "production" mode, we won't console.log anything
 // 			so return [logger] only when in "development" or other testing enviroment
-const middleWares = [process.env.NODE_ENV !== "production" && logger].filter(Boolean);
-// const middleWares = [process.env.NODE_ENV === "development" && myLogger].filter(Boolean);
+const middleWares = [process.env.NODE_ENV !== "production" && logger, thunk].filter(Boolean);
+// const middleWares = [process.env.NODE_ENV !== "production" && myLogger && thunk].filter(Boolean);
 
 // when not in production env && in browser && redux devtools extension installed,
 // 		then use the redux devtools compose so that enable redux extension in browser;
