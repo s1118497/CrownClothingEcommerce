@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { selectCatogoriesMap } from "../../store/categories/category.selector";
+import {
+	selectCatogoriesMap,
+	selectCategoriesIsLoading,
+} from "../../store/categories/category.selector";
 import ProductCard from "../../components/product-card/product-card.component";
+import Spinner from "../../components/spinner/spinner.component";
 import { CategoryContainer, CategoryTitle } from "./category.styles.jsx";
 
 const useCategoryProducts = () => {
@@ -20,6 +24,8 @@ const useCategoryProducts = () => {
 
 export default function Category() {
 	const { products, category } = useCategoryProducts();
+	const isLoading = useSelector(selectCategoriesIsLoading);
+	if (isLoading) return <Spinner />;
 	return (
 		<>
 			<CategoryTitle>{category.toUpperCase()}</CategoryTitle>

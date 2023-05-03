@@ -20,3 +20,15 @@ export const fetchCategoriesAsync = () => async (dispatch) => {
 		dispatch(fetchCategoriesFail(err)); // (async) waiting result then pass to categories
 	}
 };
+
+// Simply export an async function also work, if no extra parameter need to pass
+
+// export const fetchCategoriesAsync = async (dispatch) => {
+// 	dispatch(fetchCategoriesStart()); // (sync) pass to categories reducer first
+// 	try {
+// 		const categoriesArray = await getCategoriesAndDocuments();
+// 		dispatch(fetchCategoriesSuccess(categoriesArray)); // (async) waiting result then pass to categories
+// 	} catch (err) {
+// 		dispatch(fetchCategoriesFail(err)); // (async) waiting result then pass to categories
+// 	}
+// };
