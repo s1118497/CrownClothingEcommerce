@@ -1,10 +1,19 @@
 import { compose, createStore, applyMiddleware } from "redux";
+
 import logger from "redux-logger";
 // import myLogger from "./middleware/myLogger";
+
 import { persistReducer, persistStore } from "redux-persist";
-import thunk from "redux-thunk";
 import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
+// import thunk from "redux-thunk";
+
+import createSagaMiddleware from "redux-saga";
+import { rootSaga } from "./root-saga";
+
 import rootReducer from "./root-reducer";
+
+// creates a Redux middleware and connects the Sagas to the Redux Store
+const sagaMiddleware = createSagaMiddleware();
 
 // "cart" redux reducer value will store at browser's localStorage
 //		cart state value will stay (rehydrated) after refresh, so UI render based on previous session
@@ -23,7 +32,9 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 // *note*
 // 		in "production" mode, we won't console.log anything
 // 			so return [logger] only when in "development" or other testing enviroment
-const middleWares = [process.env.NODE_ENV !== "production" && logger, thunk].filter(Boolean);
+const middleWares = [process.env.NODE_ENV !== "production" && logger, sagaMiddleware].filter(
+	Boolean
+);
 // const middleWares = [process.env.NODE_ENV !== "production" && myLogger && thunk].filter(Boolean);
 
 // when not in production env && in browser && redux devtools extension installed,
@@ -40,5 +51,7 @@ const composedEnhancers = composeEnhancer(applyMiddleware(...middleWares));
 
 // return a single Redux store that lets you read the state, dispatch actions, and subscribe to changes.
 export const store = createStore(persistedReducer, undefined, composedEnhancers);
+
+sagaMiddleware.run(rootSaga);
 
 export const persistor = persistStore(store);

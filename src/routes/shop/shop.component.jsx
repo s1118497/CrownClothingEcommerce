@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 
 import { useDispatch } from "react-redux";
-import { fetchCategoriesAsync } from "../../store/categories/category.action";
+import { fetchCategoriesStart } from "../../store/categories/category.action";
 
 import CategoriesPreview from "../categories-preview/categories-preview.component";
 import Category from "../category/category.component";
@@ -31,8 +31,8 @@ const Shop = () => {
 const useCategoriesMap = () => {
 	const dispatch = useDispatch();
 	useEffect(() => {
-		// react-thunk: dispatch(function)
-		dispatch(fetchCategoriesAsync());
+		// react-saga listen action ({type: FETCH_START})
+		dispatch(fetchCategoriesStart());
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 };
