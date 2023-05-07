@@ -48,7 +48,7 @@ googleProvider.setCustomParameters({ prompt: "select_account" });
 //						-keep track of whether user sign-in/out with different sign in provider
 export const auth = getAuth();
 
-// export google signInWithPopup & signInWithRedirect api, return a promise
+// export google signInWithPopup & signInWithRedirect api, return a Promise<UserCredential>
 export const signInWithGooglePopup = () => signInWithPopup(auth, googleProvider);
 export const signInWithGoogleRedirect = () => signInWithRedirect(auth, googleProvider);
 
@@ -139,7 +139,7 @@ export const createUserDocFromAuth = async (userAuth, additionalInfo = null) => 
 	 */
 	//#endregion
 
-	// 	if no data exist in the DocRef, create data into it
+	// 	if no data exist in the Doc, create data into it
 	if (!userSnapshot.exists()) {
 		try {
 			// setDoc(DocumentReference, data): Promise<void>;
@@ -160,7 +160,10 @@ export const createUserDocFromAuth = async (userAuth, additionalInfo = null) => 
 	// always return the DocumentReference to client for CRUD operation
 	// 	*note*
 	// 		return type is a Promise<userDocRef> because of async function
-	return userDocRef;
+	// return userDocRef;
+
+	// for redux-saga, we want to get the data, not the DocRef pointer
+	return userSnapshot;
 };
 
 export const createAuthUserWithEmailAndPassword = async (email, password) => {
@@ -184,5 +187,23 @@ export const signOutUser = async () => {
 	}
 };
 
-// *  an helper function as an observer for changes to user's sign-in state in auth object *
-export const onAuthStateChangedListener = (callback) => onAuthStateChanged(auth, callback);
+// // no needed after migrate logic to redux-saga
+// // *  a helper function as an observer for changes to user's sign-in state in auth object *
+// export const onAuthStateChangedListener = (callback) => onAuthStateChanged(auth, callback);
+
+// Promise-based, one-time check function to check if a user sign-in or not
+// onAuthStateChanged(auth: Auth, NextOrObserver<User> [, ErrorFn,  CompleteFn]): Unsubscribe;
+
+export const getCurrentUser = () =>
+	new Promise((resolve, reject) => {
+		const unsubscribe = onAuthStateChanged(
+			// onAuthStateChanged() is sync, unsubscribe is already return, so the async listener callback (2nd arg) can access it
+			auth,
+			(user) => {
+				// unsubscribe the listener once get the user value (null/{userAuth})
+				unsubscribe();
+				resolve(user);
+			},
+			reject
+		);
+	});

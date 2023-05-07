@@ -1,10 +1,9 @@
 import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 
-import { createUserDocFromAuth, onAuthStateChangedListener } from "./utils/firebase/firebase.utils";
-import { setCurrentUser } from "./store/user/user.action";
-
 import { useDispatch } from "react-redux";
+
+import { checkUserSession } from "./store/user/user.action";
 
 import Home from "./routes/home/home.component";
 import Navigation from "./routes/navigation/navigation.component";
@@ -13,7 +12,12 @@ import Shop from "./routes/shop/shop.component";
 import Checkout from "./routes/checkout/checkout.component";
 
 const App = () => {
-	useAuthStateObserver();
+	const dispatch = useDispatch();
+	useEffect(() => {
+		dispatch(checkUserSession());
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	return (
 		<Routes>
 			{/* <Navigation> will always render in every path */}
@@ -27,23 +31,6 @@ const App = () => {
 			</Route>
 		</Routes>
 	);
-};
-
-// custom hook to sync auth user when <App> is mount
-const useAuthStateObserver = () => {
-	const dispatch = useDispatch();
-	useEffect(() => {
-		const unsubscribe = onAuthStateChangedListener((user) => {
-			// user = {user account} when sign in || null when sign out
-			if (user) {
-				// when sign-in, get that user's userDoc from firestore
-				createUserDocFromAuth(user);
-			}
-			dispatch(setCurrentUser(user));
-		});
-		return unsubscribe;
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
 };
 
 export default App;
