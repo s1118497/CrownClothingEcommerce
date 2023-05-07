@@ -15,6 +15,10 @@ export const userReducer = (state = INITIAL_STATE, action) => {
 			return { ...state, isLoading: false, currentUser: payload };
 		case USER_ACTION_TYPES.SIGN_IN_FAIL:
 			return { ...state, isLoading: false, error: payload };
+		case USER_ACTION_TYPES.SIGN_OUT_START:
+			return { ...state, isLoading: true };
+		case USER_ACTION_TYPES.SIGN_OUT_SUCCESS:
+			return { ...state, isLoading: false, currentUser: null, error: null };
 
 		default:
 			// unrelated action will return state by reference

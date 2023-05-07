@@ -1,6 +1,6 @@
 import { call, put, takeLatest, all } from "redux-saga/effects";
 
-import { signInSuccess, signInFail } from "./user.action";
+import { signInSuccess, signInFail, signOutSuccess } from "./user.action";
 import { USER_ACTION_TYPES } from "./user.types";
 
 import {
@@ -8,6 +8,7 @@ import {
 	createUserDocFromAuth,
 	signInWithGooglePopup,
 	signInAuthUserWithEmailAndPassword,
+	signOutUser,
 } from "../../utils/firebase/firebase.utils";
 
 //  final common saga task of checking auth, sign-in & sign-up
@@ -61,11 +62,24 @@ export function* signInWithEmail(action) {
 
 // entry point for email sign in saga
 export function* onEmailSignInStart() {
-	console.log();
 	yield takeLatest(USER_ACTION_TYPES.EMAIL_SIGN_IN_START, signInWithEmail);
+}
+
+export function* signOutCurrentUser() {
+	yield call(signOutUser);
+	yield put(signOutSuccess());
+}
+
+export function* onSignOut() {
+	yield takeLatest(USER_ACTION_TYPES.SIGN_OUT_START, signOutCurrentUser);
 }
 
 // parellel run all the sagas
 export function* userSagas() {
-	yield all([call(onCheckUserSession), call(onGoogleSignInStart), call(onEmailSignInStart)]);
+	yield all([
+		call(onCheckUserSession),
+		call(onGoogleSignInStart),
+		call(onEmailSignInStart),
+		call(onSignOut),
+	]);
 }

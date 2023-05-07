@@ -11,5 +11,15 @@ const emailSignInStart = (email, password) =>
 	createAction(USER_ACTION_TYPES.EMAIL_SIGN_IN_START, { email, password });
 const signInSuccess = (user) => createAction(USER_ACTION_TYPES.SIGN_IN_SUCCESS, user);
 const signInFail = (error) => createAction(USER_ACTION_TYPES.SIGN_IN_FAIL, error);
+const signOutStart = () => createAction(USER_ACTION_TYPES.SIGN_OUT_START);
+const signOutSuccess = () => createAction(USER_ACTION_TYPES.SIGN_OUT_SUCCESS);
 
-export { checkUserSession, googleSignInStart, emailSignInStart, signInSuccess, signInFail };
+export {
+	checkUserSession,
+	googleSignInStart,
+	emailSignInStart,
+	signInSuccess,
+	signInFail,
+	signOutStart,
+	signOutSuccess,
+};
