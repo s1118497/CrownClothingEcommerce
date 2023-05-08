@@ -1,6 +1,12 @@
 import { call, put, takeLatest, all } from "redux-saga/effects";
 
-import { signInSuccess, signInFail, signOutSuccess, signUpFail } from "./user.action";
+import {
+	signInSuccess,
+	signInFail,
+	signOutSuccess,
+	signUpFail,
+	signUpSuccess,
+} from "./user.action";
 import { USER_ACTION_TYPES } from "./user.types";
 
 import {
@@ -15,6 +21,7 @@ import {
 //  final common saga task for auth checking || sign-in || sign-up
 export function* getSnapShotFromUserAuth(userAuth, additionalInfo) {
 	try {
+		// * use the userSnapshot data to store in redux state*
 		const userSnapshot = yield call(createUserDocFromAuth, userAuth, additionalInfo);
 		yield put(signInSuccess({ ...userSnapshot.data(), id: userSnapshot.id }));
 	} catch (error) {
@@ -75,20 +82,32 @@ export function* onSignOut() {
 	yield takeLatest(USER_ACTION_TYPES.SIGN_OUT_START, signOutCurrentUser);
 }
 
-export function* signUpNewUser({ payload: { email, password, displayName } }) {
+export function* signUp({ payload: { email, password, displayName } }) {
 	try {
 		const { user: userAuth } = yield call(createAuthUserWithEmailAndPassword, email, password);
-		yield call(getSnapShotFromUserAuth, userAuth, { displayName });
+		// dispatch subsequent SIGN_UP_SUCCESS action
+		yield put(signUpSuccess(userAuth, { displayName }));
 	} catch (error) {
 		yield put(signUpFail(error));
 	}
 }
 
+// entry point for sign up saga
 export function* onSignUpStart() {
-	yield takeLatest(USER_ACTION_TYPES.SIGN_UP_START, signUpNewUser);
+	yield takeLatest(USER_ACTION_TYPES.SIGN_UP_START, signUp);
 }
 
-// parellel run all the sagas
+// payload: { user:{userAuth} , additionalInfo: {displayName} }
+export function* signInAfterSignUp({ payload: { user, additionalInfo } }) {
+	yield call(getSnapShotFromUserAuth, user, additionalInfo);
+}
+
+// entry point for SIGN_UP_SUCCESS action
+export function* onSignUpSuccess() {
+	yield takeLatest(USER_ACTION_TYPES.SIGN_UP_SUCCESS, signInAfterSignUp);
+}
+
+// listen all user action, parellel run corresponding sagas
 export function* userSagas() {
 	yield all([
 		call(onCheckUserSession),
@@ -96,5 +115,6 @@ export function* userSagas() {
 		call(onEmailSignInStart),
 		call(onSignOut),
 		call(onSignUpStart),
+		call(onSignUpSuccess),
 	]);
 }

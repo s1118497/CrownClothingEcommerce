@@ -30,7 +30,6 @@ const SignUpForm = () => {
 		e.preventDefault();
 		// first check confirmPassword match with password
 		if (confirmPassword !== password) return alert("confirm password do not match!");
-
 		try {
 			dispatch(signUpStart({ email, password, displayName }));
 		} catch (err) {

@@ -13,7 +13,12 @@ const signInSuccess = (user) => createAction(USER_ACTION_TYPES.SIGN_IN_SUCCESS, 
 const signInFail = (error) => createAction(USER_ACTION_TYPES.SIGN_IN_FAIL, error);
 const signOutStart = () => createAction(USER_ACTION_TYPES.SIGN_OUT_START);
 const signOutSuccess = () => createAction(USER_ACTION_TYPES.SIGN_OUT_SUCCESS);
-const signUpStart = (credential) => createAction(USER_ACTION_TYPES.SIGN_UP_START, credential);
+const signUpStart = (credential) =>
+	// payload = {email, password, displayName }, to avoid mutation
+	createAction(USER_ACTION_TYPES.SIGN_UP_START, { ...credential });
+// this action aim for the saga task, not for reducer update
+const signUpSuccess = (user, additionalInfo) =>
+	createAction(USER_ACTION_TYPES.SIGN_UP_SUCCESS, { user, additionalInfo });
 const signUpFail = (error) => createAction(USER_ACTION_TYPES.SIGN_UP_FAIL, error);
 
 export {
@@ -25,5 +30,6 @@ export {
 	signOutStart,
 	signOutSuccess,
 	signUpStart,
+	signUpSuccess,
 	signUpFail,
 };

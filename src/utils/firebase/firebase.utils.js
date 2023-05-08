@@ -14,7 +14,6 @@ import {
 	collection,
 	writeBatch,
 	doc,
-	addDoc,
 	setDoc,
 	getDoc,
 	query,
@@ -56,6 +55,7 @@ export const signInWithGoogleRedirect = () => signInWithRedirect(auth, googlePro
 // Initialize an instance of Cloud Firestore:
 export const db = getFirestore();
 
+// (demo only) one-time used, just to show how to create a new collection and batch write documents in it.
 export const addCollectionAndDocument = async (collectionKey, objectsToAdd) => {
 	// collection(firestore, path/collection name, [pathSegments]): CollectionReference
 	// 	*note*
@@ -162,7 +162,7 @@ export const createUserDocFromAuth = async (userAuth, additionalInfo = null) => 
 	// 		return type is a Promise<userDocRef> because of async function
 	// return userDocRef;
 
-	// for redux-saga, we want to get the data, not the DocRef pointer
+	// for redux-saga, we want to get the data to store in redux store, not the DocRef pointer
 	return userSnapshot;
 };
 
