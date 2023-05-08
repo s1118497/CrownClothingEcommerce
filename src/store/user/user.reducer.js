@@ -12,13 +12,17 @@ export const userReducer = (state = INITIAL_STATE, action) => {
 		case USER_ACTION_TYPES.EMAIL_SIGN_IN_START:
 			return { ...state, isLoading: true };
 		case USER_ACTION_TYPES.SIGN_IN_SUCCESS:
-			return { ...state, isLoading: false, currentUser: payload };
+			return { ...state, isLoading: false, currentUser: payload, error: null };
 		case USER_ACTION_TYPES.SIGN_IN_FAIL:
 			return { ...state, isLoading: false, error: payload };
 		case USER_ACTION_TYPES.SIGN_OUT_START:
 			return { ...state, isLoading: true };
 		case USER_ACTION_TYPES.SIGN_OUT_SUCCESS:
 			return { ...state, isLoading: false, currentUser: null, error: null };
+		case USER_ACTION_TYPES.SIGN_UP_START:
+			return { ...state, isLoading: true };
+		case USER_ACTION_TYPES.SIGN_UP_FAIL:
+			return { ...state, isLoading: false, error: payload };
 
 		default:
 			// unrelated action will return state by reference

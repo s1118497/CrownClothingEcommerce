@@ -1,8 +1,9 @@
 import { useState } from "react";
-import {
-	createAuthUserWithEmailAndPassword,
-	createUserDocFromAuth,
-} from "../../utils/firebase/firebase.utils";
+
+import { useDispatch } from "react-redux";
+
+import { signUpStart } from "../../store/user/user.action";
+
 import FormInput from "../form-input/form-input.component";
 import Button from "../button/button.component";
 import { SignUpContainer } from "./sign-up-form.styles.jsx";
@@ -18,6 +19,8 @@ const SignUpForm = () => {
 	const [formFields, setFormFields] = useState(defaultFormFields);
 	const { displayName, email, password, confirmPassword } = formFields;
 
+	const dispatch = useDispatch();
+
 	const handleInpChange = (e) => {
 		const { name, value } = e.currentTarget;
 		setFormFields({ ...formFields, [name]: value });
@@ -29,9 +32,7 @@ const SignUpForm = () => {
 		if (confirmPassword !== password) return alert("confirm password do not match!");
 
 		try {
-			// user auto sign in after successfully sign up
-			const { user } = await createAuthUserWithEmailAndPassword(email, password);
-			await createUserDocFromAuth(user, { displayName });
+			dispatch(signUpStart({ email, password, displayName }));
 		} catch (err) {
 			if (err.code === "auth/email-already-in-use")
 				return alert("Fail to create user: Already signed in");

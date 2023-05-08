@@ -13,6 +13,8 @@ const signInSuccess = (user) => createAction(USER_ACTION_TYPES.SIGN_IN_SUCCESS, 
 const signInFail = (error) => createAction(USER_ACTION_TYPES.SIGN_IN_FAIL, error);
 const signOutStart = () => createAction(USER_ACTION_TYPES.SIGN_OUT_START);
 const signOutSuccess = () => createAction(USER_ACTION_TYPES.SIGN_OUT_SUCCESS);
+const signUpStart = (credential) => createAction(USER_ACTION_TYPES.SIGN_UP_START, credential);
+const signUpFail = (error) => createAction(USER_ACTION_TYPES.SIGN_UP_FAIL, error);
 
 export {
 	checkUserSession,
@@ -22,4 +24,6 @@ export {
 	signInFail,
 	signOutStart,
 	signOutSuccess,
+	signUpStart,
+	signUpFail,
 };
