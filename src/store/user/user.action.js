@@ -13,6 +13,7 @@ const signInSuccess = (user) => createAction(USER_ACTION_TYPES.SIGN_IN_SUCCESS, 
 const signInFail = (error) => createAction(USER_ACTION_TYPES.SIGN_IN_FAIL, error);
 const signOutStart = () => createAction(USER_ACTION_TYPES.SIGN_OUT_START);
 const signOutSuccess = () => createAction(USER_ACTION_TYPES.SIGN_OUT_SUCCESS);
+const signOutFail = (error) => createAction(USER_ACTION_TYPES.SIGN_OUT_FAIL, error);
 const signUpStart = (credential) =>
 	// payload = {email, password, displayName }, to avoid mutation
 	createAction(USER_ACTION_TYPES.SIGN_UP_START, { ...credential });
@@ -29,6 +30,7 @@ export {
 	signInFail,
 	signOutStart,
 	signOutSuccess,
+	signOutFail,
 	signUpStart,
 	signUpSuccess,
 	signUpFail,

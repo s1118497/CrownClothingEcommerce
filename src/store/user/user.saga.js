@@ -6,6 +6,7 @@ import {
 	signOutSuccess,
 	signUpFail,
 	signUpSuccess,
+	signOutFail,
 } from "./user.action";
 import { USER_ACTION_TYPES } from "./user.types";
 
@@ -73,13 +74,17 @@ export function* onEmailSignInStart() {
 	yield takeLatest(USER_ACTION_TYPES.EMAIL_SIGN_IN_START, signInWithEmail);
 }
 
-export function* signOutCurrentUser() {
-	yield call(signOutUser);
-	yield put(signOutSuccess());
+export function* signOut() {
+	try {
+		yield call(signOutUser);
+		yield put(signOutSuccess());
+	} catch (error) {
+		yield put(signOutFail(error));
+	}
 }
 
-export function* onSignOut() {
-	yield takeLatest(USER_ACTION_TYPES.SIGN_OUT_START, signOutCurrentUser);
+export function* onSignOutStart() {
+	yield takeLatest(USER_ACTION_TYPES.SIGN_OUT_START, signOut);
 }
 
 export function* signUp({ payload: { email, password, displayName } }) {
@@ -113,7 +118,7 @@ export function* userSagas() {
 		call(onCheckUserSession),
 		call(onGoogleSignInStart),
 		call(onEmailSignInStart),
-		call(onSignOut),
+		call(onSignOutStart),
 		call(onSignUpStart),
 		call(onSignUpSuccess),
 	]);
