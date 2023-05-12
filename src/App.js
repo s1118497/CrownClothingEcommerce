@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 
 import { createUserDocFromAuth, onAuthStateChangedListener } from "./utils/firebase/firebase.utils";
-import { setCurrentUser } from "./store/user/user.action";
+import { setCurrentUser } from "./store/user/user.slice";
 
 import { useDispatch } from "react-redux";
 
@@ -36,10 +36,13 @@ const useAuthStateObserver = () => {
 		const unsubscribe = onAuthStateChangedListener((user) => {
 			// user = {user account} when sign in || null when sign out
 			if (user) {
-				// when sign-in, get that user's userDoc from firestore
 				createUserDocFromAuth(user);
 			}
-			dispatch(setCurrentUser(user));
+			// IIFE, to comply with redux/toolkit middleware opinion
+			const serializedUser =
+				user && (({ accessToken, email }) => ({ accessToken, email }))(user);
+			// now payload is a plain object, which is serializable
+			dispatch(setCurrentUser(serializedUser));
 		});
 		return unsubscribe;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
