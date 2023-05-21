@@ -1,0 +1,7 @@
+# For Netlify,
+
+# redirects any routes /\* from what the browser requests to /index.html
+
+# to prevent 404 error when refreshing child route SPA
+
+/\* /index.html 200
