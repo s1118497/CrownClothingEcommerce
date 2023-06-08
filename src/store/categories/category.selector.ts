@@ -1,27 +1,30 @@
 import { createSelector } from "reselect";
+import { CategoriesState } from "./category.reducer";
+import { CategoryMap } from "./category.types";
 
 //  memoized selector function = createSelector( [input selector,...] , output selector)
 // 		--> if input selector unchange, just return old result, don't run output selector
 
-// state = entire redux state: {user:{currentUser:{..}}, categories:{categories:[..]}}
-const selectCategoriesReducer = (state) => state.categories;
+// state = entire redux state: {user:{currentUser:{..}}, categories:{categories:[..]}, cart: {....}}
+const selectCategoriesReducer = (state): CategoriesState => state.categories;
 
 // catergories= {categories:[..]}
 const selectCategoriesArr = createSelector(
 	[selectCategoriesReducer],
 	(categoriesReducer) => categoriesReducer.categories
 );
-
 // export a memoized selector function
 // 		return same acc categoryMap object reference, if input selectCategoriesArr doesn't change
 // 			then useSelector will return same result when rerun
 // 				So <Category> won't rerender if only user/cart action trigger
-export const selectCatogoriesMap = createSelector([selectCategoriesArr], (categorieisArr) =>
-	categorieisArr.reduce((acc, category) => {
-		const { items, title } = category;
-		acc[title.toLowerCase()] = items;
-		return acc;
-	}, {})
+export const selectCatogoriesMap = createSelector(
+	[selectCategoriesArr],
+	(categoriesArr): CategoryMap =>
+		categoriesArr.reduce((acc, category) => {
+			const { items, title } = category;
+			acc[title.toLowerCase()] = items;
+			return acc;
+		}, {} as CategoryMap)
 );
 // *notes*
 // format each document data [ {title: "hat", items: [xxx, xxx, xxx]} , {title: "jackets", items: [xxx, xxx, xxx]} ]
