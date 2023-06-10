@@ -6,6 +6,7 @@ import {
 	fetchCategoriesFail,
 } from "./category.action";
 
+// readonly: can prevent state mutation
 export type CategoriesState = {
 	readonly categories: Category[];
 	readonly isLoading: boolean;
@@ -17,7 +18,7 @@ const CATEGORIES_INITIAL_STATE: CategoriesState = { categories: [], isLoading: f
 //  Type Casting/Assertion -- "as" keyword : https://www.typescripttutorial.net/typescript-tutorial/type-casting
 export const categoriesReducer = (
 	state = CATEGORIES_INITIAL_STATE,
-	action = {} as AnyAction
+	action: AnyAction
 	// any redux action can be passed, only categories action get response from this reducer, otherwise return previous state
 ): CategoriesState => {
 	// User-defined Type Guards Function, match()
