@@ -19,12 +19,12 @@ import {
 	createAuthUserWithEmailAndPassword,
 } from "../../utils/firebase/firebase.utils";
 
-//  final common saga task for auth checking || sign-in || sign-up
+//  final common saga task for every auth --> sign-in || sign-up
 export function* getSnapShotFromUserAuth(userAuth, additionalInfo) {
 	try {
 		// * use the userSnapshot data to store in redux state*
 		const userSnapshot = yield call(createUserDocFromAuth, userAuth, additionalInfo);
-		yield put(signInSuccess({ ...userSnapshot.data(), id: userSnapshot.id }));
+		yield put(signInSuccess({ ...userSnapshot.data(), id: userAuth.uid }));
 	} catch (error) {
 		yield put(signInFail(error));
 	}
@@ -33,7 +33,8 @@ export function* getSnapShotFromUserAuth(userAuth, additionalInfo) {
 export function* isUserAuthenticated() {
 	try {
 		const userAuth = yield call(getCurrentUser);
-		// when sign-out, userAuth = null, return, no need to getDocSnapshot
+		// when sign-out, userAuth = null, return undefined, will not call getDocSnapshot
+		// when sign-in, userAuth = User type, return user, and then call getDocSnapshot with that user info
 		if (!userAuth) return;
 		yield call(getSnapShotFromUserAuth, userAuth);
 	} catch (error) {
@@ -41,6 +42,7 @@ export function* isUserAuthenticated() {
 	}
 }
 // entry point for checking saga
+// 		onCheckUserSession ==> isUserAuthenticated ==> createUserDocFromAuth (if sign-in)
 export function* onCheckUserSession() {
 	yield takeLatest(USER_ACTION_TYPES.CHECK_USER_SESSION, isUserAuthenticated);
 }

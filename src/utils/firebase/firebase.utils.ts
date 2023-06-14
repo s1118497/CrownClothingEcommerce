@@ -8,6 +8,7 @@ import {
 	signInWithEmailAndPassword,
 	signOut,
 	onAuthStateChanged,
+	User,
 } from "firebase/auth";
 import {
 	getFirestore,
@@ -18,7 +19,10 @@ import {
 	getDoc,
 	query,
 	getDocs,
+	QueryDocumentSnapshot,
 } from "firebase/firestore";
+
+import { Category } from "../../store/categories/category.types";
 
 const firebaseConfig = {
 	apiKey: "AIzaSyBkBXURuNh-tHgvjSp6KHBjK8yIsS0ZEzc",
@@ -55,8 +59,13 @@ export const signInWithGoogleRedirect = () => signInWithRedirect(auth, googlePro
 // Initialize an instance of Cloud Firestore:
 export const db = getFirestore();
 
+export type ObjectToAdd = { title: string };
+
 // (demo only) one-time used, just to show how to create a new collection and batch write documents in it.
-export const addCollectionAndDocument = async (collectionKey, objectsToAdd) => {
+export const addCollectionAndDocument = async <T extends ObjectToAdd>(
+	collectionKey: string,
+	objectsToAdd: T[]
+): Promise<void> => {
 	// collection(firestore, path/collection name, [pathSegments]): CollectionReference
 	// 	*note*
 	// 		a CollectionReference obj always present when using collection(), even it is not yet created in firebase database
@@ -68,7 +77,7 @@ export const addCollectionAndDocument = async (collectionKey, objectsToAdd) => {
 	const batch = writeBatch(db);
 
 	// objectsToAdd argument = SHOP_DATA from "shop-data.js"
-	objectsToAdd.forEach((object) => {
+	objectsToAdd.forEach((object: any) => {
 		// for each SHOP_DATA element, get an document reference named as its title prop
 		// 		doc(db, collection, document) | doc(collection, document)
 		const docRef = doc(collectionRef, object.title.toLowerCase());
@@ -84,7 +93,7 @@ export const addCollectionAndDocument = async (collectionKey, objectsToAdd) => {
 };
 
 // https://firebase.google.com/docs/firestore/query-data/get-data#get_multiple_documents_from_a_collection
-export const getCategoriesAndDocuments = async () => {
+export const getCategoriesAndDocuments = async (): Promise<Category[]> => {
 	//  create a reference to the "categories" collection -  https://firebase.google.com/docs/firestore/query-data/queries#simple_queries
 	const collectionRef = collection(db, "categories");
 	// create a query against the collection.
@@ -95,7 +104,7 @@ export const getCategoriesAndDocuments = async () => {
 	// 		querySnapshot.docs = an array of each the document against the collection QuerySnapshot.
 	// 				each docSnapshot need data() to decrypt the document data
 	const querySnapshot = await getDocs(q);
-	const categoriesArray = querySnapshot.docs.map((docSnapshot) => docSnapshot.data());
+	const categoriesArray = querySnapshot.docs.map((docSnapshot) => docSnapshot.data() as Category);
 
 	// 159: Business Logic in our Selectors
 	// 		return the base form of firestore document
@@ -114,7 +123,21 @@ export const getCategoriesAndDocuments = async () => {
 		return categoryMap; */
 };
 
-export const createUserDocFromAuth = async (userAuth, additionalInfo = null) => {
+export type AdditionalInfo = {
+	displayName?: string;
+};
+
+export type UserData = {
+	createdAt: Date;
+	displayName: string;
+	email: string;
+	id?: string;
+};
+
+export const createUserDocFromAuth = async (
+	userAuth: User,
+	additionalInfo = {} as AdditionalInfo
+): Promise<QueryDocumentSnapshot<UserData>> => {
 	// doc(firestore, path/collection name, pathSegments/document name) || doc(collectionRef, pathSegments/document name): DocumentReference
 	// 		Here pathSegments refer to userAuth.id, as an unique id to get the document,
 	//			so path to that particular document will be "users/{uid}"
@@ -122,7 +145,7 @@ export const createUserDocFromAuth = async (userAuth, additionalInfo = null) => 
 	// 		A DocumentRefernce obj always present when using doc(), even it is not yet created in firebase database
 	const userDocRef = doc(db, "users", userAuth.uid);
 
-	// getDoc(DocumentReference): Promise<DocumentSnapshot>
+	// getDoc(DocumentReference): Promise<DocumentSnapshot<T>>
 	// 	*note*
 	//		A DocumentSnapshot contains data read from a document specified by the DocumentReference.
 	//			can use exists() method to check whether the data/document actually exists
@@ -142,10 +165,7 @@ export const createUserDocFromAuth = async (userAuth, additionalInfo = null) => 
 	// 	if no data exist in the Doc, create data into it
 	if (!userSnapshot.exists()) {
 		try {
-			// setDoc(DocumentReference, data): Promise<void>;
-			//	*note*
-			// 		email&password auth method's displayName field is null,
-			// 			{...additionalInfo} = displayName: xxx,  to add form data into it
+			//  for the first time of email&password sign-up, additionalInfo parameter = {displayName: xxx}, and create the related user document
 			await setDoc(userDocRef, {
 				displayName: userAuth.displayName,
 				email: userAuth.email,
@@ -153,26 +173,20 @@ export const createUserDocFromAuth = async (userAuth, additionalInfo = null) => 
 				...additionalInfo,
 			});
 		} catch (error) {
-			alert("error creating user:", error.message);
+			alert("error creating user:" + (error as Error).message);
 		}
 	}
-
-	// always return the DocumentReference to client for CRUD operation
-	// 	*note*
-	// 		return type is a Promise<userDocRef> because of async function
-	// return userDocRef;
-
-	// for redux-saga, we want to get the data to store in redux store, not the DocRef pointer
-	return userSnapshot;
+	// at this statement, userSnapshot must exist, so type assertion can narrow down to <QueryDocumentSnapshot>
+	return userSnapshot as QueryDocumentSnapshot<UserData>;
 };
 
-export const createAuthUserWithEmailAndPassword = async (email, password) => {
+export const createAuthUserWithEmailAndPassword = async (email: string, password: string) => {
 	// if either email or password missing, return immediately
 	if (!email || !password) return;
 	return await createUserWithEmailAndPassword(auth, email, password);
 };
 
-export const signInAuthUserWithEmailAndPassword = async (email, password) => {
+export const signInAuthUserWithEmailAndPassword = async (email: string, password: string) => {
 	// if either email or password missing, return immediately
 	if (!email || !password) return;
 	const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -182,7 +196,7 @@ export const signInAuthUserWithEmailAndPassword = async (email, password) => {
 export const signOutUser = async () => {
 	try {
 		await signOut(auth);
-	} catch (error) {
+	} catch (error: any) {
 		alert("Sign Out Error: " + error.code);
 	}
 };
@@ -191,19 +205,21 @@ export const signOutUser = async () => {
 // // *  a helper function as an observer for changes to user's sign-in state in auth object *
 // export const onAuthStateChangedListener = (callback) => onAuthStateChanged(auth, callback);
 
-// Promise-based, one-time check function to check if a user sign-in or not
-// onAuthStateChanged(auth: Auth, NextOrObserver<User> [, ErrorFn,  CompleteFn]): Unsubscribe;
-
-export const getCurrentUser = () =>
+// migrate to Promise-based, one-time check function to check if a user sign-in or not, then unsubscribe,
+// 		return a Promise of resolved value of user<User|null>
+//	 signature: onAuthStateChanged(auth: Auth, NextOrObserver<User> [, ErrorFn,  CompleteFn]): Unsubscribe;
+export const getCurrentUser = (): Promise<User | null> =>
 	new Promise((resolve, reject) => {
+		// onAuthStateChanged() is sync, unsubscribe is already return, so the async listener callback (2nd arg) can access it
 		const unsubscribe = onAuthStateChanged(
-			// onAuthStateChanged() is sync, unsubscribe is already return, so the async listener callback (2nd arg) can access it
 			auth,
+			// the observer is triggered on sign-in (user:User) or sign-out (user:null)
 			(user) => {
-				// unsubscribe the listener once get the user value (null/{userAuth})
+				// unsubscribe the listener once get the user value - one-time check
 				unsubscribe();
 				resolve(user);
 			},
+			// if error, return rejected Promise
 			reject
 		);
 	});
