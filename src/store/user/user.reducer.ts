@@ -9,7 +9,7 @@ export type UserState = {
 };
 const INITIAL_STATE = { currentUser: null, error: null };
 
-export const userReducer = (state = INITIAL_STATE, action: AnyAction): UserState => {
+export const userReducer = (state: UserState = INITIAL_STATE, action: AnyAction): UserState => {
 	//#region switch statement version?
 	/* switch (action.type) {
 		case USER_ACTION_TYPES.SIGN_IN_SUCCESS:

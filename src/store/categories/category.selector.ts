@@ -1,12 +1,13 @@
 import { createSelector } from "reselect";
 import { CategoriesState } from "./category.reducer";
 import { CategoryMap } from "./category.types";
+import { RootState } from "../store";
 
 //  memoized selector function = createSelector( [input selector,...] , output selector)
 // 		--> if input selector unchange, just return old result, don't run output selector
 
 // state = entire redux state: {user:{currentUser:{..}}, categories:{categories:[..]}, cart: {....}}
-const selectCategoriesReducer = (state): CategoriesState => state.categories;
+const selectCategoriesReducer = (state: RootState): CategoriesState => state.categories;
 
 // catergories= {categories:[..]}
 const selectCategoriesArr = createSelector(

@@ -1,16 +1,24 @@
-import { compose, createStore, applyMiddleware } from "redux";
+import { compose, createStore, applyMiddleware, Middleware } from "redux";
 
-import logger from "redux-logger";
-// import myLogger from "./middleware/myLogger";
+// import logger from "redux-logger";
+import myLogger from "./middleware/myLogger";
 
-import { persistReducer, persistStore } from "redux-persist";
+import { PersistConfig, persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 // import thunk from "redux-thunk";
 
 import createSagaMiddleware from "redux-saga";
 import { rootSaga } from "./root-saga";
 
-import rootReducer from "./root-reducer";
+import { rootReducer } from "./root-reducer";
+
+export type RootState = ReturnType<typeof rootReducer>;
+
+declare global {
+	interface Window {
+		__REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: typeof compose;
+	}
+}
 
 // creates a Redux middleware and connects the Sagas to the Redux Store
 const sagaMiddleware = createSagaMiddleware();
@@ -20,7 +28,13 @@ const sagaMiddleware = createSagaMiddleware();
 // *note*
 // 		1. "user", "categories" blacklist because already store at firebase cloud storage, avoid unexpected conflict
 // 		2. The main features of localStorage are: Shared between all tabs and windows from the same origin. The data does not expire. It remains after the browser restart and even OS reboot.
-const persistConfig = {
+
+type ExtendedPersistConfig = PersistConfig<RootState> & {
+	whitelist?: (keyof RootState)[];
+};
+// type narrow peristConfig's whitelist property
+
+const persistConfig: ExtendedPersistConfig = {
 	key: "root",
 	storage,
 	whitelist: ["cart"], // only cart reducer will be persist
@@ -32,10 +46,13 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 // *note*
 // 		in "production" mode, we won't console.log anything
 // 			so return [logger] only when in "development" or other testing enviroment
-const middleWares = [process.env.NODE_ENV !== "production" && logger, sagaMiddleware].filter(
-	Boolean
+
+// const middleWares = [process.env.NODE_ENV !== "production" && logger, sagaMiddleware].filter(
+// 	(m): m is Middleware => Boolean(m)
+// );
+const middleWares = [process.env.NODE_ENV !== "production" && myLogger, sagaMiddleware].filter(
+	(m): m is Middleware => Boolean(m)
 );
-// const middleWares = [process.env.NODE_ENV !== "production" && myLogger && thunk].filter(Boolean);
 
 // when not in production env && in browser && redux devtools extension installed,
 // 		then use the redux devtools compose so that enable redux extension in browser;

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { googleSignInStart, emailSignInStart } from "../../store/user/user.action.js";
+import { googleSignInStart, emailSignInStart } from "../../store/user/user.action";
 import Button, { BUTTON_TYPE_CLASSES } from "../button/button.component";
 import FormInput from "../form-input/form-input.component";
 import { SignInContainer, ButtonsContainer } from "./sign-in-form.styles";
