@@ -1,4 +1,4 @@
-import { call, put, takeLatest, all } from "redux-saga/effects";
+import { call, put, takeLatest, all } from "typed-redux-saga/macro";
 
 import {
 	signInSuccess,
@@ -7,6 +7,9 @@ import {
 	signUpFail,
 	signUpSuccess,
 	signOutFail,
+	EmailSignInStart,
+	SignUpStart,
+	SignUpSuccess,
 } from "./user.action";
 import { USER_ACTION_TYPES } from "./user.types";
 
@@ -17,28 +20,30 @@ import {
 	signInAuthUserWithEmailAndPassword,
 	signOutUser,
 	createAuthUserWithEmailAndPassword,
+	AdditionalInfo,
 } from "../../utils/firebase/firebase.utils";
+import { User } from "firebase/auth";
 
 //  final common saga task for every auth --> sign-in || sign-up
-export function* getSnapShotFromUserAuth(userAuth, additionalInfo) {
+export function* getSnapShotFromUserAuth(userAuth: User, additionalInfo?: AdditionalInfo) {
 	try {
 		// * use the userSnapshot data to store in redux state*
-		const userSnapshot = yield call(createUserDocFromAuth, userAuth, additionalInfo);
-		yield put(signInSuccess({ ...userSnapshot.data(), id: userAuth.uid }));
+		const userSnapshot = yield* call(createUserDocFromAuth, userAuth, additionalInfo);
+		yield* put(signInSuccess({ ...userSnapshot.data(), id: userAuth.uid }));
 	} catch (error) {
-		yield put(signInFail(error));
+		yield* put(signInFail(error as Error));
 	}
 }
 
 export function* isUserAuthenticated() {
 	try {
-		const userAuth = yield call(getCurrentUser);
+		const userAuth = yield* call(getCurrentUser);
 		// when sign-out, userAuth = null, return undefined, will not call getDocSnapshot
 		// when sign-in, userAuth = User type, return user, and then call getDocSnapshot with that user info
 		if (!userAuth) return;
-		yield call(getSnapShotFromUserAuth, userAuth);
+		yield* call(getSnapShotFromUserAuth, userAuth);
 	} catch (error) {
-		yield put(signInFail(error));
+		yield put(signInFail(error as Error));
 	}
 }
 // entry point for checking saga
@@ -49,10 +54,10 @@ export function* onCheckUserSession() {
 
 export function* signInWithGoogle() {
 	try {
-		const userCredential = yield call(signInWithGooglePopup);
+		const userCredential = yield* call(signInWithGooglePopup);
 		yield call(getSnapShotFromUserAuth, userCredential.user);
 	} catch (error) {
-		yield put(signInFail(error));
+		yield put(signInFail(error as Error));
 	}
 }
 // entry point for google sign in saga
@@ -61,13 +66,12 @@ export function* onGoogleSignInStart() {
 }
 
 // {action} will pass to saga task as argument
-export function* signInWithEmail(action) {
-	const { email, password } = action.payload;
+export function* signInWithEmail({ payload: { email, password } }: EmailSignInStart) {
 	try {
-		const userAuth = yield call(signInAuthUserWithEmailAndPassword, email, password);
-		yield call(getSnapShotFromUserAuth, userAuth);
+		const userAuth = yield* call(signInAuthUserWithEmailAndPassword, email, password);
+		if (userAuth) yield* call(getSnapShotFromUserAuth, userAuth);
 	} catch (error) {
-		yield put(signInFail(error));
+		yield* put(signInFail(error as Error));
 	}
 }
 
@@ -78,45 +82,45 @@ export function* onEmailSignInStart() {
 
 export function* signOut() {
 	try {
-		yield call(signOutUser);
-		yield put(signOutSuccess());
+		yield* call(signOutUser);
+		yield* put(signOutSuccess());
 	} catch (error) {
-		yield put(signOutFail(error));
+		yield* put(signOutFail(error as Error));
 	}
 }
 
 export function* onSignOutStart() {
-	yield takeLatest(USER_ACTION_TYPES.SIGN_OUT_START, signOut);
+	yield* takeLatest(USER_ACTION_TYPES.SIGN_OUT_START, signOut);
 }
 
-export function* signUp({ payload: { email, password, displayName } }) {
+export function* signUp({ payload: { email, password, displayName } }: SignUpStart) {
 	try {
-		const { user: userAuth } = yield call(createAuthUserWithEmailAndPassword, email, password);
+		const userAuth = yield* call(createAuthUserWithEmailAndPassword, email, password);
 		// dispatch subsequent SIGN_UP_SUCCESS action
-		yield put(signUpSuccess(userAuth, { displayName }));
+		if (userAuth) yield* put(signUpSuccess(userAuth, { displayName }));
 	} catch (error) {
-		yield put(signUpFail(error));
+		yield* put(signUpFail(error as Error));
 	}
 }
 
 // entry point for sign up saga
 export function* onSignUpStart() {
-	yield takeLatest(USER_ACTION_TYPES.SIGN_UP_START, signUp);
+	yield* takeLatest(USER_ACTION_TYPES.SIGN_UP_START, signUp);
 }
 
-// payload: { user:{userAuth} , additionalInfo: {displayName} }
-export function* signInAfterSignUp({ payload: { user, additionalInfo } }) {
-	yield call(getSnapShotFromUserAuth, user, additionalInfo);
+// payload: { user:{userAuth} , displayName: }
+export function* signInAfterSignUp({ payload: { user: userAuth, displayName } }: SignUpSuccess) {
+	yield* call(getSnapShotFromUserAuth, userAuth, { displayName });
 }
 
 // entry point for SIGN_UP_SUCCESS action
 export function* onSignUpSuccess() {
-	yield takeLatest(USER_ACTION_TYPES.SIGN_UP_SUCCESS, signInAfterSignUp);
+	yield* takeLatest(USER_ACTION_TYPES.SIGN_UP_SUCCESS, signInAfterSignUp);
 }
 
 // listen all user action, parellel run corresponding sagas
 export function* userSagas() {
-	yield all([
+	yield* all([
 		call(onCheckUserSession),
 		call(onGoogleSignInStart),
 		call(onEmailSignInStart),

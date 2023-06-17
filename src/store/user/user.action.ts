@@ -11,7 +11,7 @@ import { AdditionalInfo, UserData } from "../../utils/firebase/firebase.utils";
 // Action type
 type CheckUserSession = Action<USER_ACTION_TYPES.CHECK_USER_SESSION>;
 type GoogleSignInStart = Action<USER_ACTION_TYPES.GOOGLE_SIGN_IN_START>;
-type EmailSignInStart = ActionWithPayload<
+export type EmailSignInStart = ActionWithPayload<
 	USER_ACTION_TYPES.EMAIL_SIGN_IN_START,
 	{ email: string; password: string }
 >;
@@ -20,8 +20,8 @@ type SignInFail = ActionWithPayload<USER_ACTION_TYPES.SIGN_IN_FAIL, Error>;
 type SignOutStart = Action<USER_ACTION_TYPES.SIGN_OUT_START>;
 type SignOutSuccess = Action<USER_ACTION_TYPES.SIGN_OUT_SUCCESS>;
 type SignOutFail = ActionWithPayload<USER_ACTION_TYPES.SIGN_OUT_FAIL, Error>;
-type SignUpStart = ActionWithPayload<USER_ACTION_TYPES.SIGN_UP_START, SignUpCredential>;
-type SignUpSuccess = ActionWithPayload<
+export type SignUpStart = ActionWithPayload<USER_ACTION_TYPES.SIGN_UP_START, SignUpCredential>;
+export type SignUpSuccess = ActionWithPayload<
 	USER_ACTION_TYPES.SIGN_UP_SUCCESS,
 	{
 		user: User;
@@ -62,7 +62,7 @@ const signUpStart = withMatcher(
 // this action aim for the saga task, not for reducer update
 const signUpSuccess = withMatcher(
 	(user: User, additionalInfo: AdditionalInfo): SignUpSuccess =>
-		createAction(USER_ACTION_TYPES.SIGN_UP_SUCCESS, { user, additionalInfo })
+		createAction(USER_ACTION_TYPES.SIGN_UP_SUCCESS, { user, ...additionalInfo })
 );
 const signUpFail = withMatcher(
 	(error: Error): SignUpFail => createAction(USER_ACTION_TYPES.SIGN_UP_FAIL, error)

@@ -183,7 +183,8 @@ export const createUserDocFromAuth = async (
 export const createAuthUserWithEmailAndPassword = async (email: string, password: string) => {
 	// if either email or password missing, return immediately
 	if (!email || !password) return;
-	return await createUserWithEmailAndPassword(auth, email, password);
+	const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+	return userCredential.user;
 };
 
 export const signInAuthUserWithEmailAndPassword = async (email: string, password: string) => {
