@@ -24,7 +24,7 @@ export type SignUpStart = ActionWithPayload<USER_ACTION_TYPES.SIGN_UP_START, Sig
 export type SignUpSuccess = ActionWithPayload<
 	USER_ACTION_TYPES.SIGN_UP_SUCCESS,
 	{
-		user: User;
+		userAuth: User;
 	} & AdditionalInfo
 >;
 type SignUpFail = ActionWithPayload<USER_ACTION_TYPES.SIGN_UP_FAIL, Error>;
@@ -61,8 +61,8 @@ const signUpStart = withMatcher(
 );
 // this action aim for the saga task, not for reducer update
 const signUpSuccess = withMatcher(
-	(user: User, additionalInfo: AdditionalInfo): SignUpSuccess =>
-		createAction(USER_ACTION_TYPES.SIGN_UP_SUCCESS, { user, ...additionalInfo })
+	(userAuth: User, additionalInfo: AdditionalInfo): SignUpSuccess =>
+		createAction(USER_ACTION_TYPES.SIGN_UP_SUCCESS, { userAuth, ...additionalInfo })
 );
 const signUpFail = withMatcher(
 	(error: Error): SignUpFail => createAction(USER_ACTION_TYPES.SIGN_UP_FAIL, error)

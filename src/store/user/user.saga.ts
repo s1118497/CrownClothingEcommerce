@@ -109,7 +109,7 @@ export function* onSignUpStart() {
 }
 
 // payload: { user:{userAuth} , displayName: }
-export function* signInAfterSignUp({ payload: { user: userAuth, displayName } }: SignUpSuccess) {
+export function* signInAfterSignUp({ payload: { userAuth, displayName } }: SignUpSuccess) {
 	yield* call(getSnapShotFromUserAuth, userAuth, { displayName });
 }
 

@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { useDispatch } from "react-redux";
+import { AuthError, AuthErrorCodes } from "firebase/auth";
 import { googleSignInStart, emailSignInStart } from "../../store/user/user.action";
 import Button, { BUTTON_TYPE_CLASSES } from "../button/button.component";
 import FormInput from "../form-input/form-input.component";
@@ -15,17 +16,17 @@ const SignInForm = () => {
 	const { email, password } = formFields;
 	const dispatch = useDispatch();
 
-	const handleSubmit = async (e) => {
+	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		try {
 			dispatch(emailSignInStart(email, password));
 		} catch (error) {
-			switch (error.code) {
-				case "auth/invalid-email":
+			switch ((error as AuthError).code) {
+				case AuthErrorCodes.INVALID_EMAIL:
 					return alert("Login Fail: Invalid-Email");
-				case "auth/user-not-found":
+				case AuthErrorCodes.USER_DELETED:
 					return alert("Login Fail: User not found");
-				case "auth/wrong-password":
+				case AuthErrorCodes.INVALID_PASSWORD:
 					return alert("Wrong Password");
 				default:
 					return;
@@ -35,16 +36,17 @@ const SignInForm = () => {
 		}
 	};
 
-	const signInWithGoogle = async (e) => {
+	const signInWithGoogle = async () => {
 		try {
 			dispatch(googleSignInStart());
 		} catch (error) {
-			if (error.code === "auth/popup-closed-by-user") return alert("Please log in account");
-			return alert(error.code);
+			if ((error as AuthError).code === AuthErrorCodes.POPUP_CLOSED_BY_USER)
+				return alert("Please log in account");
+			return alert((error as AuthError).code);
 		}
 	};
 
-	const handleInpChange = (e) => {
+	const handleInpChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.currentTarget;
 		setFormFields({ ...formFields, [name]: value });
 	};
