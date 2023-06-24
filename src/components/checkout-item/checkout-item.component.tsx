@@ -1,3 +1,4 @@
+import { FC } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addItemToCart, clearItemFromCart, removeItemFromCart } from "../../store/cart/cart.action";
 import { selectCartItems } from "../../store/cart/cart.selector";
@@ -9,9 +10,10 @@ import {
 	RemoveButton,
 	Value,
 	Arrow,
-} from "./checkout-item.styles.jsx";
+} from "./checkout-item.styles";
+import { Product } from "../../store/cart/cart.types";
 
-const CheckoutItem = (cartItem) => {
+const CheckoutItem: FC<Product> = (cartItem) => {
 	const { name, imageUrl, price, quantity } = cartItem;
 
 	const dispatch = useDispatch();

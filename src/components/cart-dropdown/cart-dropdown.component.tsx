@@ -4,7 +4,7 @@ import { setIsCartOpen } from "../../store/cart/cart.action";
 import { selectCartCount, selectCartItems } from "../../store/cart/cart.selector";
 import Button from "../button/button.component";
 import CartItem from "../cart-item/cart-item.component";
-import { CartDropDownContainer, CartItems, EmptyMessage } from "./cart-dropdown.styles.jsx";
+import { CartDropDownContainer, CartItems, EmptyMessage } from "./cart-dropdown.styles";
 
 const CartDropdown = () => {
 	const navigate = useNavigate();

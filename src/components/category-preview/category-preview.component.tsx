@@ -1,7 +1,14 @@
+import { FC } from "react";
+import { CategoryItem } from "../../store/categories/category.types";
 import ProductCard from "../product-card/product-card.component";
-import { Preview, Title, CategoryPreviewContainer } from "./category-preview.styles.jsx";
+import { Preview, Title, CategoryPreviewContainer } from "./category-preview.styles";
 
-const CategoryPreview = ({ categoryTitle, products }) => {
+type CategoryPreviewProps = {
+	categoryTitle: string;
+	products: CategoryItem[];
+};
+
+const CategoryPreview: FC<CategoryPreviewProps> = ({ categoryTitle, products }) => {
 	return (
 		<CategoryPreviewContainer>
 			<h2>
@@ -9,7 +16,7 @@ const CategoryPreview = ({ categoryTitle, products }) => {
 				<Title to={categoryTitle}>{categoryTitle.toUpperCase()}</Title>
 			</h2>
 			<Preview>
-				{/* only showcase 4 products for each category */}
+				{/* only showcase first 4 products for each category */}
 				{products &&
 					products
 						.filter((_, idx) => idx < 4)
