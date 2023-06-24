@@ -30,7 +30,7 @@ const Navigation = () => {
 				</LogoContainer>
 				<NavLinks>
 					<NavLink to="shop">Shop</NavLink>
-					<NavLink>Contact</NavLink>
+					<NavLink to="/">Contact</NavLink>
 					{currentUser ? (
 						// render the styled component as <span> tag
 						<NavLink as="span" onClick={handleSignOut}>
