@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setIsCartOpen } from "../../store/cart/cart.action";
@@ -7,16 +8,17 @@ import CartItem from "../cart-item/cart-item.component";
 import { CartDropDownContainer, CartItems, EmptyMessage } from "./cart-dropdown.styles";
 
 const CartDropdown = () => {
+	const cartItems = useSelector(selectCartItems);
+	const cartCount = useSelector(selectCartCount);
+
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 
-	const goToCheckoutHandler = () => {
+	const goToCheckoutHandler = useCallback(() => {
 		navigate("/checkout");
 		dispatch(setIsCartOpen(false));
-	};
-
-	const cartItems = useSelector(selectCartItems);
-	const cartCount = useSelector(selectCartCount);
+		// dispatch and navigate function reference suppose not to change as 3rd party hook, so not nessessary to include dependency
+	}, []);
 
 	return (
 		<CartDropDownContainer>

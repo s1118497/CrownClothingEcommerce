@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import { AuthError, AuthErrorCodes } from "firebase/auth";
 import { googleSignInStart, emailSignInStart } from "../../store/user/user.action";
@@ -14,9 +14,10 @@ const defaultFormFields = {
 const SignInForm = () => {
 	const [formFields, setFormFields] = useState(defaultFormFields);
 	const { email, password } = formFields;
+
 	const dispatch = useDispatch();
 
-	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+	const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		try {
 			dispatch(emailSignInStart(email, password));
@@ -34,9 +35,11 @@ const SignInForm = () => {
 		} finally {
 			setFormFields(defaultFormFields);
 		}
-	};
+		// 	no dependency require, dispatch supposed to remain the same
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
-	const signInWithGoogle = async () => {
+	const signInWithGoogle = useCallback(async () => {
 		try {
 			dispatch(googleSignInStart());
 		} catch (error) {
@@ -44,7 +47,9 @@ const SignInForm = () => {
 				return alert("Please log in account");
 			return alert((error as AuthError).code);
 		}
-	};
+		// 	no dependency require, dispatch supposed to remain the same
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const handleInpChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.currentTarget;

@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useCallback, useState } from "react";
 
 import { useDispatch } from "react-redux";
 
@@ -28,7 +28,7 @@ const SignUpForm = () => {
 		setFormFields({ ...formFields, [name]: value });
 	};
 
-	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+	const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		// first check confirmPassword match with password
 		if (confirmPassword !== password) return alert("confirm password do not match!");
@@ -41,7 +41,9 @@ const SignUpForm = () => {
 		} finally {
 			setFormFields(defaultFormFields);
 		}
-	};
+		// 	no dependency require, dispatch supposed to remain the same
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	return (
 		<SignUpContainer>
