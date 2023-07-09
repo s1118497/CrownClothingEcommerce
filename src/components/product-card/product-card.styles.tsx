@@ -28,9 +28,32 @@ export const ProductCardContainer = styled.div`
 		}
 
 		button {
+			display: block;
 			opacity: 0.85;
-			display: flex;
 		}
+	}
+
+	@media screen and (width <= 800px) {
+		width: 40vw;
+
+		button {
+			display: block;
+			opacity: 0.9;
+			min-width: unset;
+			padding: 0 10px;
+		}
+
+		&:hover {
+			img {
+				opacity: 1;
+			}
+			bottom {
+				opacity: unset;
+			}
+		}
+	}
+	@media screen and (width<=400px) {
+		width: 80vw;
 	}
 `;
 

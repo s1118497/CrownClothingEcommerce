@@ -8,6 +8,8 @@ import { checkUserSession } from "./store/user/user.action";
 
 import Spinner from "./components/spinner/spinner.component";
 
+import { GlobalStyle } from "./global.styles";
+
 // Static Import
 // import Home from "./routes/home/home.component";
 // import Authentication from "./routes/authentication/authentication.component";
@@ -31,6 +33,7 @@ const App = () => {
 
 	return (
 		<Suspense fallback={<Spinner />}>
+			<GlobalStyle />
 			<Routes>
 				{/* <Navigation> will always render in every path */}
 				<Route path="/" element={<Navigation />}>
