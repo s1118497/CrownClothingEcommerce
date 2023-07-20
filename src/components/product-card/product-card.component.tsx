@@ -16,7 +16,7 @@ const ProductCard: FC<CategoryItem> = (product) => {
 
 	return (
 		<ProductCardContainer>
-			<img src={imageUrl} alt={`${name}`} />
+			<img src={imageUrl} alt={name} />
 			<Footer>
 				<Name>{name}</Name>
 				<Price>{price}</Price>

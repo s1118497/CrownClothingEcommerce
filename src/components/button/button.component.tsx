@@ -1,7 +1,7 @@
 import { FC, ButtonHTMLAttributes } from "react";
 import { BaseButton, GoogleButton, InvertedButton, ButtonSpinner } from "./button.styles";
 
-//#region workaround of enum type, can accept both key & string literal type,
+// Workaround of enum type, can accept both key & string literal type,
 //		Const Assertion:  https://www.youtube.com/watch?v=pWPClHdcvVg
 export const BUTTON_TYPE_CLASSES = {
 	base: "base",
