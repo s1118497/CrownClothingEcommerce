@@ -1,6 +1,15 @@
-import { screen } from "@testing-library/react";
+import { screen, fireEvent } from "@testing-library/react";
+
 import { renderWithProviders } from "../../../utils/test/test.utils";
 import Navigation from "../navigation.component";
+import { signOutStart } from "../../../store/user/user.action";
+
+// mock entire "react-redux" module & spy on the useDispatch hook which return mock dispatch function
+const mockDispatch = jest.fn();
+jest.mock("react-redux", () => ({
+	...jest.requireActual("react-redux"),
+	useDispatch: () => mockDispatch,
+}));
 
 describe("Navigation tests", () => {
 	test("It should render ONLY the Sign-in link if no current user", () => {
@@ -45,5 +54,26 @@ describe("Navigation tests", () => {
 		expect(GoToCheckoutBtnElement).toBeNull();
 		const EmptyMessageElement = screen.queryByText(/Your cart is empty/i);
 		expect(EmptyMessageElement).toBeNull();
+	});
+
+	it("should dispatch signOutStart action when clicking on the Sign Out link", () => {
+		renderWithProviders(<Navigation />, {
+			preloadedState: {
+				user: { currentUser: {} },
+			},
+		});
+
+		const SignOutLinkElement = screen.getByText(/sign out/i);
+		expect(SignOutLinkElement).toBeInTheDocument();
+
+		fireEvent.click(SignOutLinkElement);
+		expect(mockDispatch).toBeCalledTimes(1);
+
+		const SignOutStartAction = signOutStart();
+		expect(mockDispatch).toBeCalledWith(SignOutStartAction);
+
+		// console.log(mockDispatch.mock.calls); // [ [ SignOutStartAction ] ]
+		mockDispatch.mockClear();
+		// console.log(mockDispatch.mock.calls); // []
 	});
 });
