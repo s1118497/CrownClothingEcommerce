@@ -10,7 +10,7 @@ import { RootState } from "../store";
 const selectCategoriesReducer = (state: RootState): CategoriesState => state.categories;
 
 // catergories= {categories:[..]}
-const selectCategoriesArr = createSelector(
+const selectCategoriesSlice = createSelector(
 	[selectCategoriesReducer],
 	(categoriesReducer) => categoriesReducer.categories
 );
@@ -19,9 +19,9 @@ const selectCategoriesArr = createSelector(
 // 			then useSelector will return same result when rerun
 // 				So <Category> won't rerender if only user/cart action trigger
 export const selectCatogoriesMap = createSelector(
-	[selectCategoriesArr],
-	(categoriesArr): CategoryMap =>
-		categoriesArr.reduce((acc, category) => {
+	[selectCategoriesSlice],
+	(categoriesSlice): CategoryMap =>
+		categoriesSlice.reduce((acc, category) => {
 			const { items, title } = category;
 			acc[title.toLowerCase()] = items;
 			return acc;
