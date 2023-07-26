@@ -13,7 +13,11 @@ export type CategoriesState = {
 	readonly error: Error | null;
 };
 
-const CATEGORIES_INITIAL_STATE: CategoriesState = { categories: [], isLoading: false, error: null };
+export const CATEGORIES_INITIAL_STATE: CategoriesState = {
+	categories: [],
+	isLoading: false,
+	error: null,
+};
 
 //  Type Casting/Assertion -- "as" keyword : https://www.typescripttutorial.net/typescript-tutorial/type-casting
 export const categoriesReducer = (
