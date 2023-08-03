@@ -7,7 +7,7 @@ export type UserState = {
 	readonly currentUser: null | UserData;
 	readonly error: null | Error;
 };
-const INITIAL_STATE = { currentUser: null, error: null };
+export const INITIAL_STATE = { currentUser: null, error: null };
 
 export const userReducer = (state: UserState = INITIAL_STATE, action: AnyAction): UserState => {
 	//#region switch statement version?
