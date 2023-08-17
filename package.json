@@ -3,6 +3,7 @@
 	"version": "0.1.0",
 	"private": true,
 	"dependencies": {
+		"4": "^0.0.0",
 		"@stripe/react-stripe-js": "^2.1.0",
 		"@stripe/stripe-js": "^1.52.1",
 		"@testing-library/jest-dom": "^5.16.5",
@@ -30,7 +31,7 @@
 		"stripe": "^12.5.0",
 		"styled-components": "^5.3.9",
 		"typed-redux-saga": "^1.5.0",
-		"typescript": "^5.0.4",
+		"typescript": "^3.2.1",
 		"web-vitals": "^2.1.4",
 		"workbox-background-sync": "^6.6.0",
 		"workbox-broadcast-update": "^6.6.0",
