@@ -9,7 +9,7 @@ const addCartItem = (cartItems: Product[], productToAdd: CategoryItem): Product[
 
 	// find if existing cartItems contains that productToAdd
 	const existedIndex = cartItems.findIndex(
-		(currentCartItem) => currentCartItem?.id === productToAdd.id
+		(currentCartItem) => currentCartItem.id === productToAdd.id
 	);
 
 	// if found, increament quantity
@@ -33,7 +33,7 @@ const removeCartItem = (cartItems: Product[], cartItemToRemove: Product): Produc
 	);
 
 	// check if quantity is equal to 1, if so, remove the cart item and return new array
-	if (existingCartItem?.quantity === 1)
+	if ((existingCartItem as Product).quantity === 1)
 		return cartItems.filter((currentCartItem) => currentCartItem.id !== cartItemToRemove.id);
 
 	// if quantity > 1, decrement quantity and return new array

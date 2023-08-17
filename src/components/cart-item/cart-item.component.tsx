@@ -10,7 +10,6 @@ type CartItemProps = {
 // 		when same key item added to cart, cartItem props change because in cart.action.js, {...existedItem,quantity: existedItem.quantity + 1}
 //		when new key item added to cart, previous cartItem props unchange because in cart.action.js, newCartItems.push({ ...productToAdd, quantity: 1 });
 const CartItem: FC<CartItemProps> = memo(({ cartItem }) => {
-	console.log(`cartItem=> ${cartItem.name}`);
 	const { quantity, name, price, imageUrl } = cartItem;
 	return (
 		<CartItemContainer>
